@@ -72,7 +72,7 @@ Run the backend application using the following command:
 
 ```bash
 cd backend
-npm run dev
+npm start
 ```
 
 Access: http://localhost:8080
