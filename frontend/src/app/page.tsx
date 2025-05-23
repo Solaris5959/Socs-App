@@ -10,8 +10,15 @@ export const metadata: Metadata = {
   description: "Socs social media app",
 };
 
-// Page component 
+// Login page component
 export default function Page() {
+
+  // Function to login the user
+
+
+
+
+
   return (
     <>
       {/* Background image layer */}

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 
 import Image from "next/image"
 import logoImage from "@/assets/socs-logo.png";
+import Link from "next/link"
 
 export function LoginForm({
   className,
@@ -30,8 +31,8 @@ export function LoginForm({
               className="h-54 w-auto"
             />
           </div>
-          <CardTitle className="text-2xl text-center">Login to your account</CardTitle>
-          <CardDescription className="text-md text-center text-slate-400">
+          <CardTitle className="sm:text-2xl text-xl text-center">Login to your account</CardTitle>
+          <CardDescription className="sm:text-md text-sm text-center text-slate-400">
             Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
@@ -40,7 +41,7 @@ export function LoginForm({
         {/* Card content with form */}
         <CardContent>
           <form>
-            <div className="flex flex-col gap-6 w-1/2 mx-auto">
+            <div className="flex flex-col gap-6 sm:w-1/2 w-full mx-auto">
               <div className="grid gap-3 ">
                 {/* username input */}
                 <Input
@@ -48,32 +49,56 @@ export function LoginForm({
                   type="email"
                   placeholder="Username"
                   required
-                  className="rounded-xl bg-gray-50 dark:bg-slate-800 
-                    focus-visible:ring-slate-400 focus-visible:ring-offset-slate-200 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  className="w-full px-4 py-2 rounded-2xl border border-gray-200 
+                  bg-gray-50 text-gray-900 
+                  focus:outline-none transition duration-150 ease-in-out"
                 />
               </div>
               <div className="grid gap-3">
 
-
-                {/* password input */}
+                {/* Password input */}
                 <Input id="password" type="password" placeholder="Password" required
-                  className="rounded-xl bg-gray-50 dark:bg-slate-800 
-                    focus-visible:ring-slate-400 focus-visible:ring-offset-slate-200 focus-visible:ring-offset-2 focus-visible:outline-none" />
+                  className="w-full px-4 py-2 rounded-2xl border border-gray-200 
+                  bg-gray-50 text-gray-900 
+                  focus:outline-none transition duration-150 ease-in-out" />
               </div>
 
 
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer">
+                <Button type="submit" className="w- rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer">
                   Login
                 </Button>
 
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
-              </a>
+
+
+            </div>
+
+
+            {/* Forgot pw and Signup link */}
+            <div className="flex flex-col items-center text-center text-sm space-y-2 text-gray-600 dark:text-gray-400">
+              <div>
+                <Link
+                  href="/forgot-password"
+                  className="text-blue-500 hover:underline 
+                  hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              <div>
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-blue-500 hover:underline hover:text-blue-700 
+                  dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                >
+                  Create an account
+                </Link>
+              </div>
             </div>
           </form>
         </CardContent>
