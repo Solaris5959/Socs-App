@@ -7,13 +7,11 @@ import { createClient } from '@supabase/supabase-js';
 ////////////////////////// Import route /////////////////////////////
 import userRoutes from './routes/user.js';
 import healthRoutes from './routes/healthcheck.js';
-
-
+import logger from './logger.js'; // Import the custom logger on debug mode
 
 // Load environment variables
 dotenv.config();
 const app = express();
-
 
 
 // Middleware   
@@ -25,8 +23,17 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 // Set the port
 const HTTP_PORT = process.env.HTTP_PORT || 8080;
-
-//logger
+logger.info('Connecting to port ' + HTTP_PORT);
+// logger levels
+// logger.fatal('fatal');
+// logger.error('error');
+// logger.warn('warn');
+// logger.info('info');
+// logger.debug('debug');
+// logger.trace('trace');
+if (supabase){
+    logger.info('Connected to Supabase');
+}
 
 
 ////////////////////////////////////////// Define Routes //////////////////////////////////////////////////
