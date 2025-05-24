@@ -2,12 +2,12 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
-import bodyParser from 'body-parser';
-import apiRoutes from './routes/index.js'; // Route import
-//import logger on debug mode
-import logger from './logger.js';
 
+import bodyParser from 'body-parser';
+import logger from './logger.js';
+import supabase from './lib/supabaseClient.js';
+import apiRoutes from './routes/index.js'; // Route import
+import userRoutes from './routes/userRoutes.js';
 // Load environment variables
 dotenv.config();
 const app = express();
@@ -17,10 +17,9 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-import userRoutes from './routes/userRoutes.js';
+
 
 // Supbase connection
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 /*authenticate JWT user, front end must send Authorization header
 
    const response = await fetch('http://localhost:8080/api/test_auth', {
@@ -35,6 +34,7 @@ const authenticate = () => {
   return async (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1]; // Extract the token from the Authorization header
     if (!token) {
+      logger.debug('Token not provided');
       return res.status(401).json({ error: 'No token provided' });
     }
 
@@ -72,7 +72,7 @@ app.get("/", async (req, res) => {
 //every route must check req.user if authenticated
 app.use('/api', authenticate(), apiRoutes);
 
-// Note: This is example route for registering a new user
+//user login and registration
 app.use("/user", userRoutes);
 
 // Start the server
