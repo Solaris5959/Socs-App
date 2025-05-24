@@ -50,8 +50,6 @@ const authenticate = () => {
 
 // Set the port
 const HTTP_PORT = process.env.HTTP_PORT || 8080;
-
-logger.info('Connecting to port ' + HTTP_PORT);
 // logger levels
 // logger.fatal('fatal');
 // logger.error('error');
@@ -74,7 +72,7 @@ app.use('/api', authenticate(), apiRoutes);
 
 // Start the server
 app.listen(HTTP_PORT, () => {
-    console.log(`Server running on port ${HTTP_PORT}`);
+    logger.info(`Server running on port ${HTTP_PORT}`);
 });
 
 //Error handling
@@ -83,6 +81,6 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error stack for debugging
+  logger.debug(err.stack); // Log the error stack for debugging
   res.status(500).json({ error: 'Internal Server Error' });
 });
