@@ -17,6 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
+import userRoutes from './routes/userRoutes.js';
+
 // Supbase connection
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 /*authenticate JWT user, front end must send Authorization header
@@ -57,27 +59,30 @@ const HTTP_PORT = process.env.HTTP_PORT || 8080;
 // logger.info('info');
 // logger.debug('debug');
 // logger.trace('trace');
-if (supabase){
-    logger.info('Connected to Supabase');
+if (supabase) {
+  logger.info('Connected to Supabase');
 }
 
 //health check route
 app.get("/", async (req, res) => {
-    res.json({ message: "Hello from healthcheck route" });
+  res.json({ message: "Hello from healthcheck route" });
 })
 
 // Protect all routes under /api with the authenticate middleware
 //every route must check req.user if authenticated
 app.use('/api', authenticate(), apiRoutes);
 
+// Note: This is example route for registering a new user
+app.use("/user", userRoutes);
+
 // Start the server
 app.listen(HTTP_PORT, () => {
-    logger.info(`Server running on port ${HTTP_PORT}`);
+  logger.info(`Server running on port ${HTTP_PORT}`);
 });
 
 //Error handling
 app.use((req, res, next) => {
-    res.status(404).json({ error: 'Not Found' });
+  res.status(404).json({ error: 'Not Found' });
 });
 
 app.use((err, req, res, next) => {
