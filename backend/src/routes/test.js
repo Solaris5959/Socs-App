@@ -16,7 +16,7 @@ export async function test(req,res) { //the method
     // user.id is response to reference the auth.users.id fk
   } catch (error) {
     // Handle any unexpected errors
-    console.error('Error fetching user profile:', error);
+    logger.debug('Error fetching user profile:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
