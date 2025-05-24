@@ -30,7 +30,10 @@ export function LoginForm({
               alt="Logo"
               className="h-54 w-auto"
             />
+
+
           </div>
+
           <CardTitle className="sm:text-2xl text-xl text-center">Login to your account</CardTitle>
           <CardDescription className="sm:text-md text-sm text-center text-slate-400">
             Enter your username below to login to your account
@@ -65,7 +68,8 @@ export function LoginForm({
 
 
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w- rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer">
+                <Button type="submit" className="w-full rounded-xl
+                 bg-blue-500 hover:bg-blue-600 cursor-pointer">
                   Login
                 </Button>
 
