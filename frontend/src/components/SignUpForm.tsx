@@ -10,59 +10,38 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import React from "react"
+import { useAuth } from '../../contexts/AuthContext';
 
-
-
-// URL for the authentication service
-const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
-
-
-
-// SignupForm component
+// SignupForm Component
 export function SignUpForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
 
+  // Use the AuthContext to get the signUp function
+  const { signUp } = useAuth();
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Function to handle form submission
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    // Get form data
     const formData = new FormData(e.currentTarget)
 
+    // Get the form values
+    const userEmail = formData.get("email") as string
+    const userPassword = formData.get("password") as string
+    const userPassword2 = formData.get("password2") as string
+    const userDisplayName = formData.get("displayName") as string
 
-    // Check if the email is already registered
-    console.log("Form data:", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      displayName: formData.get("displayName"),
-    })
 
-    console.log("API URL:", API_URL)
+    // Todo: Validate the form data and display error messages if needed
 
-    const response = await fetch(`${API_URL}/user/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: formData.get("email"),
-        password: formData.get("password"),
-        displayname: formData.get("displayName"),
-      }),
-    })
 
-    const result = await response.json()
-    if (!response.ok) {
-      console.error("Registration error:", result.error)
-      // show toast or alert
-      alert("Error: " + result.error)
-    } else {
-      console.log("User registered:", result)
-      // redirect or notify
-      alert("User registered successfully!")
-    }
+    // Call the signUp function from AuthContext
+    await signUp(userEmail, userPassword, userDisplayName);
+
+
   }
 
   return (
@@ -107,6 +86,20 @@ export function SignUpForm({
               />
             </div>
 
+            {/* Conirm Password Field */}
+            <div className="grid gap-2">
+              <label htmlFor="password2" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Confirm Password
+              </label>
+              <Input
+                id="password2"
+                name="password2"
+                type="password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
             {/* Display Name */}
             <div className="grid gap-2">
               <label htmlFor="displayName" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -124,11 +117,11 @@ export function SignUpForm({
             {/* Actions */}
             <div className="flex flex-col gap-3 pt-4">
               <Button type="submit" className="w-full rounded-xl 
-              bg-blue-500 hover:bg-blue-700 text-white">
+              bg-blue-500 hover:bg-blue-700 text-white cursor-pointer">
                 Create Account
               </Button>
               <Link href="/" passHref>
-                <Button variant="outline" className="w-full rounded-xl">
+                <Button variant="outline" className="w-full rounded-xl cursor-pointer">
                   Back
                 </Button>
               </Link>

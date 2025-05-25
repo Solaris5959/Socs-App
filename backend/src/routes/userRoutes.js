@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
         if (!email || !password || !displayname) {
             logger.debug("Registration failed")
             return res.status(400).json({ message: 'Missing required fields' });
-            
+
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
             password,
             options: {
                 data: {
-                    displayname,
+                    display_name: displayname,
                 },
             },
         });
@@ -28,13 +28,13 @@ router.post('/register', async (req, res) => {
         if (error) {
             return res.status(400).json({ message: error.message });
         }
-        logger.debug("User registered successfully: " + data.user.id); 
+        logger.debug("User registered successfully: " + data.user.id);
         res.status(201).json({
             message: 'User registered successfully',
             user: data.user,
         });
     } catch (err) {
-        logger.error("Registration error:" +  err);
+        logger.error("Registration error:" + err);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -49,13 +49,14 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
         if (error) {
-            logger.debug("Login Error:" +  err);
+            logger.debug("Login Error:" + err);
             return res.status(401).json({ message: error.message });
         }
 
@@ -67,6 +68,33 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         logger.error("Internal server error:" + err);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+// GET /user/session - Validate access token and return user info
+router.get('/session', async (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Missing or invalid authorization header" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+
+        if (error || !user) {
+            logger.warn("Invalid token or user not found");
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
+
+        res.status(200).json({ user });
+    } catch (err) {
+        logger.error("Session check error: " + err);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 
