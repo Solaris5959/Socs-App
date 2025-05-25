@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import Image from "next/image"
 import bgImage from "@/assets/works-space-bg.jpg"
 import Footer from "@/components/Footer"
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/LoginForm"
 
 export const metadata: Metadata = {
   title: "SOCS | Login",

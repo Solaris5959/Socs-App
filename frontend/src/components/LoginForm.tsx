@@ -1,3 +1,5 @@
+
+'use client'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -8,15 +10,40 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-
 import Image from "next/image"
 import logoImage from "@/assets/socs-logo.png";
 import Link from "next/link"
+import { useAuth } from '../../contexts/AuthContext';
 
+// LoginForm Component
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+
+  // Use the AuthContext to get the signIn function
+  const { signIn } = useAuth();
+
+
+  // Function to handle form submission
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    // Get form data
+    const formData = new FormData(e.currentTarget)
+    // Get the form values
+    const userEmail = formData.get("email") as string
+    const userPassword = formData.get("password") as string
+
+    // Todo: Validate the form data and display error messages if needed
+
+
+    // Call the signIn function from AuthContext
+    await signIn(userEmail, userPassword);
+
+
+  }
+
   return (
 
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -30,8 +57,6 @@ export function LoginForm({
               alt="Logo"
               className="h-54 w-auto"
             />
-
-
           </div>
 
           <CardTitle className="sm:text-2xl text-xl text-center">Login to your account</CardTitle>
@@ -43,12 +68,13 @@ export function LoginForm({
 
         {/* Card content with form */}
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit} >
             <div className="flex flex-col gap-6 sm:w-1/2 w-full mx-auto">
               <div className="grid gap-3 ">
                 {/* username input */}
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="Username"
                   required
@@ -60,7 +86,11 @@ export function LoginForm({
               <div className="grid gap-3">
 
                 {/* Password input */}
-                <Input id="password" type="password" placeholder="Password" required
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Password" required
                   className="w-full px-4 py-2 rounded-2xl border border-gray-200 
                   bg-gray-50 text-gray-900 
                   focus:outline-none transition duration-150 ease-in-out" />
