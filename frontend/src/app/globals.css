@@ -43,7 +43,12 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+.header {
+  height: var(--header-height);
+}
+
 :root {
+  --header-height: 3.5rem; /* or whatever height you want */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);

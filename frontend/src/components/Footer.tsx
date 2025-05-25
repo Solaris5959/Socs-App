@@ -8,8 +8,8 @@ export default function Footer() {
                 className="mb-5  font-light text-sm
          flex flex-row justify-center "
             >
-                <div className="text-center">
-                    <p> © 2024 SOCS | All Rights Reserved</p>
+                <div className="text-center text-gray-300">
+                    <p> © 2025 SOCS | All Rights Reserved</p>
                 </div>
             </div></>
     )

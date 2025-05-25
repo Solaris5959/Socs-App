@@ -72,8 +72,8 @@ app.get("/", async (req, res) => {
 //every route must check req.user if authenticated
 app.use('/api', authenticate(), apiRoutes);
 
-//user login and registration
-app.use("/user", userRoutes);
+//user routes
+app.use("/socs/api/v1/user", userRoutes);
 
 // Start the server
 app.listen(HTTP_PORT, () => {
