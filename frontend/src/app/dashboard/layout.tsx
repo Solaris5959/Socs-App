@@ -29,8 +29,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const breadcrumbConfig = {
         '/dashboard': 'Home',
         '/dashboard/myposts': 'My Posts', // Example path
-
-
+        '/dashboard/favorites': 'Favorite Posts',
+        '/dashboard/connections': 'My Connections',
+        '/dashboard/chats': 'Chats',
+        '/dashboard/workspace': 'Workspace',
+        '/dashboard/supports': 'Support',
+        '/dashboard/profile': 'Profile',
     };
 
 
