@@ -8,6 +8,4 @@ import { test } from './test.js'; // Importing the method test using ESM syntax
 //front end calls "http://localhost:8080/api/route_name"
 router.get('/test_auth', test); //sample route to follow
 
-
-
 export default router; //export for server.js

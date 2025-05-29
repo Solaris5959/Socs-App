@@ -8,6 +8,8 @@ import logger from './logger.js';
 import supabase from './lib/supabaseClient.js';
 import apiRoutes from './routes/index.js'; // Route import
 import userRoutes from './routes/userRoutes.js';
+import dashboardRoutes from './routes/dashboard.js';
+
 // Load environment variables
 dotenv.config();
 const app = express();
@@ -69,11 +71,14 @@ app.get("/", async (req, res) => {
 })
 
 // Protect all routes under /api with the authenticate middleware
-//every route must check req.user if authenticated
+// every route must check req.user if authenticated
 app.use('/api', authenticate(), apiRoutes);
 
-//user routes
+// user routes
 app.use("/socs/api/v1/user", userRoutes);
+
+// dashboard routes
+app.use('/socs/api/v1/dashboard', authenticate(), dashboardRoutes);
 
 // Start the server
 app.listen(HTTP_PORT, () => {
