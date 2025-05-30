@@ -102,42 +102,42 @@ export function NavUser({
             <DropdownMenuGroup>
 
               {/* Profile Page*/}
-              <DropdownMenuItem >
-                <a href="/dashboard/profile" className="flex items-center gap-2">
+              <a href="/dashboard/profile"  >
+                <DropdownMenuItem className="cursor-pointer" >
                   <CircleUserRound />
                   Profile
-                </a>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </a>
 
               {/* My post Page*/}
-              <DropdownMenuItem >
-                <a href="/dashboard/myposts" className="flex items-center gap-2">
+              <a href="/dashboard/myposts" >
+                <DropdownMenuItem className="cursor-pointer" >
                   <Rss />
                   My Posts
-                </a>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </a>
 
               {/* Chat Page*/}
-              <DropdownMenuItem >
-                <a href="/dashboard/chats" className="flex items-center gap-2">
+              <a href="/dashboard/chats" >
+                <DropdownMenuItem className="cursor-pointer" >
                   <MessageCircleMore />
                   Chats
-                </a>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </a>
 
-              {/* Todo: TBC With team*/}
+              {/* Notifications Page whrere user get reuqest*/}
               <DropdownMenuItem>
                 <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <button onClick={handleSignOut} className="flex items-center gap-2">
+            <button onClick={handleSignOut} className="w-full text-left">
+              <DropdownMenuItem className="cursor-pointer" >
                 <LogOut />
                 Log out
-              </button>
-            </DropdownMenuItem>
+              </DropdownMenuItem>
+            </button>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
