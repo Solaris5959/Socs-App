@@ -6,7 +6,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { AuthContextType } from '@/interface/AuthContextType';
 import { Session, User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation'
-import { redirect } from 'next/navigation'
 import { toast } from "sonner"
 
 
@@ -24,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
 
 
     // Check the session and user state on component mount
@@ -101,19 +101,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return false
             }
 
-
             // Parse the response data
             const data = await response.json();
 
-
             // Show success message and redirect to login page
-
             toast.success("Registration successful!", {
                 description: "Please check your email for confirmation.",
             });
 
-            // Redirect to the login page
-            redirect("/dashboard")
+            // Delay to allow toast to render
+            setTimeout(() => {
+                router.push("/login");
+            }, 1500);
 
             return data;
 
@@ -185,15 +184,113 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 
-    // Todo: Method to reset password
-    const resetPassword = async (userEmail: string) => {
+    // Method to reset password
+    const forgetPassword = async (userEmail: string) => {
+
+        // Fetch request to the API for password reset
+        try {
+
+            // Make a POST request to the API for password reset
+            const response = await fetch(`${API_URL}/socs/api/v1/user/forgot-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: userEmail,
+                }),
+            });
+
+            // If the response is not OK, return false
+            if (!response.ok) {
+                toast.error("Password reset failed. Please try again.");
+                return false;
+            }
+
+            // Parse the response data
+            const data = await response.json();
+
+            // Show success message and redirect to login page
+            toast.success("Password reset link sent to your email!");
+
+
+            // Delay to allow toast to render
+            setTimeout(() => {
+                router.push("/login");
+            }, 1500);
+
+            return data;
+
+        } catch (error) {
+            toast.error("Password reset failed. Please try again.");
+            console.error("Error resetting password", error);
+            return false;
+        }
 
     }
+
+
+    // Method to reset password
+    const resetPassword = async (newPassword: string) => {
+
+        try {
+
+            console.log("New Password", newPassword);
+
+            // Get the access from the the link
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const token = hashParams.get("access_token");
+
+
+            if (!token) {
+                toast.error("You must be logged in to reset your password.");
+                return false;
+            }
+
+            //Make a POST request to the API for password reset
+            const response = await fetch(`${API_URL}/socs/api/v1/user/reset-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    newPassword: newPassword,
+                    token: token, // Assuming you have the token from the reset link
+                }),
+            });
+
+            // If the response is not OK, return false
+            if (!response.ok) {
+                toast.error("Password reset failed. Please try again.");
+                return false;
+            }
+
+            // Parse the response data
+            const data = await response.json();
+
+            // Show success message and redirect to login page
+            toast.success("Password reset successful! Please log in with your new password.");
+
+            // Delay to allow toast to render
+            setTimeout(() => {
+                router.push("/login");
+            }, 1500);
+
+            return data;
+        } catch (error) {
+            toast.error("Password reset failed. Please try again.");
+            console.error("Error resetting password", error);
+            return false;
+        }
+    }
+
+
 
 
 
     // Todo: Method to update password
     const updatePassword = async (newPassword: string) => {
+
 
 
 
@@ -211,6 +308,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signIn,
         signOut,
+        forgetPassword,
         resetPassword,
         updatePassword,
 
