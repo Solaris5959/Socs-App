@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Method to query the user profile
 export async function query_acc(req, res) {
-  console.log("Authenticated user ", req.user);
+  logger.debug("Authenticated user ", req.user);
   logger.debug("in GET profile,, authenticated users only");
 
   try {
@@ -14,7 +14,7 @@ export async function query_acc(req, res) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    console.log("Fetching user profile for user ID:", req.user.id);
+   logger.debug("Fetching user profile for user ID:", req.user.id);
 
     const { data, error } = await supabase
       .from('user_profiles')
@@ -22,7 +22,7 @@ export async function query_acc(req, res) {
       .eq('user_id', req.user.id)
       .single();
 
-    console.log("User profile data:", data);
+    logger.debug("User profile data:", data);
 
     if (error) {
       logger.debug('Error fetching user profile:', error);
@@ -76,7 +76,7 @@ export async function upload_avatar(req, res) {
       .getPublicUrl(path);
 
     // Log the details for debugging
-    console.log("Public URL of the uploaded avatar:", updateUserImg.data.publicUrl);
+    logger.debug("Public URL of the uploaded avatar:", updateUserImg.data.publicUrl);
 
 
     // Update image URL in user_profiles table
@@ -96,41 +96,38 @@ export async function upload_avatar(req, res) {
 
 
 // Todo: Implement the following methods
-export async function fill_acc(req, res) { //the method 
-  logger.debug("in POST profile,, authenticated users only")
-  try {
-    // Check if req.user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    // Access the authenticated user from req.user
-    logger.debug(req.user);
-    res.status(200).json("Post Profile under construction");
-    // see sample object return
-    // user.id is response to reference the auth.users.id fk
-  } catch (error) {
-    // Handle any unexpected errors
-    logger.debug('Error fetching user profile:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
-
-
-// Todo: Implement the following methods
 export async function update_acc(req, res) { //the method 
   logger.debug("in PUT profile, authenticated users only")
   try {
     // Check if req.user is authenticated
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
+    }else if (req.body.display_name === undefined || req.body.email === undefined){
+      logger.debug("Missing fields");
+      return res.status(422).json({ error: 'Display_name or email fields missing for body' })
     }
+    //if any of the fields not defined in body, updates as blank string
+    const fields = {
+        display_name : req.body.display_name,
+        company: req.body.company !== undefined ? req.body.company : "",
+        profile_pic_url: req.body.profile_pic_url !== undefined ? req.body.profile_pic_url: "",
+        visibility: req.body.visibilitiy !== undefined ? req.body.visibilitiy : "public",
+        email: req.body.email,
+        first_name: req.body.firstName !== undefined ? req.body.firstName : "",
+        last_name: req.body.lastName !== undefined ? req.body.lastName : "",
+        position : req.body.position !== undefined ? req.body.position : "",
+        phone_number : req.body.phone_number !== undefined ? req.body.phone_number : ""
 
-    // Access the authenticated user from req.user
-    logger.debug(req.user);
-    res.status(200).json("Update Profile under construction");
-    // see sample object return
-    // user.id is response to reference the auth.users.id fk
+    };
+
+    const {data, error } = await supabase
+      .from('user_profiles')
+      .update(fields) 
+      .eq('user_id', req.user.id)
+      .single();
+
+
+    res.status(204).json("Updated user profile");
   } catch (error) {
     // Handle any unexpected errors
     logger.debug('Error fetching user profile:', error);
@@ -151,6 +148,27 @@ export async function delete_acc(req, res) { //the method
     // Access the authenticated user from req.user
     logger.debug(req.user);
     res.status(200).json("Delete Profile under construction");
+    // see sample object return
+    // user.id is response to reference the auth.users.id fk
+  } catch (error) {
+    // Handle any unexpected errors
+    logger.debug('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+// Todo: Implement the following methods
+export async function query_posts(req, res) { //the method 
+  logger.debug("in GET profile posts, authenticated users only")
+  try {
+    // Check if req.user is authenticated
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Access the authenticated user from req.user
+    logger.debug(req.user);
+    res.status(200).json("GET profile posts under construction");
     // see sample object return
     // user.id is response to reference the auth.users.id fk
   } catch (error) {

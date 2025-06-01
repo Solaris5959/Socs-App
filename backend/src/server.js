@@ -80,9 +80,6 @@ app.use('/socs/api/v1/index', authenticate(), apiRoutes);
 app.use("/socs/api/v1/user", userRoutes);
 
 
-
-
-
 // Start the server
 app.listen(HTTP_PORT, () => {
   logger.info(`Server running on port ${HTTP_PORT}`);
@@ -97,3 +94,5 @@ app.use((err, req, res, next) => {
   logger.debug(err.stack); // Log the error stack for debugging
   res.status(500).json({ error: 'Internal Server Error' });
 });
+
+export default app;
