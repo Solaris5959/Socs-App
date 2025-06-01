@@ -48,6 +48,8 @@ const authenticate = () => {
 
     // Attach user information to the request object
     req.user = user;
+
+
     next(); // Proceed to the next middleware or route handler
   };
 };
@@ -70,12 +72,14 @@ app.get("/", async (req, res) => {
   res.json({ message: "Hello from healthcheck route" });
 })
 
-// Protect all routes under /api with the authenticate middleware
-// every route must check req.user if authenticated
-app.use('socs/api/v1', authenticate(), apiRoutes);
 
-// user routes
+// Private routes (Authenticated routes)
+app.use('/socs/api/v1/index', authenticate(), apiRoutes);
+
+// (Public routes for registration, login, etc.)
 app.use("/socs/api/v1/user", userRoutes);
+
+
 
 
 

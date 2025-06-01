@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Delay to allow toast to render
             setTimeout(() => {
-                router.push("/login");
+                router.push("/");
             }, 1500);
 
             return data;
@@ -130,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Fetch request to the API for user login
         try {
 
+
             // Make a POST request to the API for user login
             const response = await fetch(`${API_URL}/socs/api/v1/user/login`, {
                 method: "POST",
@@ -142,6 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
 
+
+
             // If the response is not OK, return false
             if (!response.ok) {
                 toast.error("Login failed. Please try again.");
@@ -150,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Parse the response data
             const data = await response.json();
+
 
 
             // Set cookies and local storage with the access token
@@ -216,7 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Delay to allow toast to render
             setTimeout(() => {
-                router.push("/login");
+                router.push("/");
             }, 1500);
 
             return data;
@@ -273,7 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Delay to allow toast to render
             setTimeout(() => {
-                router.push("/login");
+                router.push("/");
             }, 1500);
 
             return data;

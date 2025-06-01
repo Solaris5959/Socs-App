@@ -59,6 +59,9 @@ router.post('/login', async (req, res) => {
             password,
         });
 
+        // Check if there was an error during login
+        logger.info("Login data: " + JSON.stringify(data, null, 2));
+
         if (error) {
             logger.debug("Login Error:" + err);
             return res.status(401).json({ message: error.message });
@@ -168,7 +171,7 @@ router.post('/update-password', async (req, res) => {
 });
 
 
-// Todo: Fix this endpoint to use the access token
+
 // POST /user/reset-password - Reset password using access token
 router.post('/reset-password', async (req, res) => {
     // This endpoint is called when the user clicks the reset link in their email
