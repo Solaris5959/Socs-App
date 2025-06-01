@@ -1,11 +1,14 @@
 import React from 'react'
-
+import { UserProfile } from '@/components/UserProfile'
 
 // This is the user profile page component
 export default function page() {
     return (
-        <div className="flex flex-row items-center justify-center">
-            <h1 className='m-2 text-2xl text-center'>User Profile goes here...</h1>
+        // Profile Component Container
+        <div className="flex-1 md:min-h-min ">
+            {/* Render Profile Component */}
+            <UserProfile />
         </div>
+
     )
 }
