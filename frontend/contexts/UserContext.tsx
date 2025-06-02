@@ -24,7 +24,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const fetchUserProfile = async () => {
             try {
 
-                console.log('Fetching user profile from:', `${API_URL}/socs/api/v1/index/profile`);
 
                 // get user token from local storage
                 const token = localStorage.getItem("access_token");
@@ -42,6 +41,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     throw new Error('Failed to fetch user profile');
                 }
                 const data = await response.json();
+
+                // Log to see the fetched data
                 console.log('User profile fetched:', data);
                 setUserProfile(data);
 
@@ -74,7 +75,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
-
                 },
                 body: formData,
             });
@@ -115,8 +115,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Methods to update user profile, delete account, and upload profile picture
     const updateUserProfile = async (data: Partial<UserProfile>): Promise<boolean> => {
         try {
+
+            // Toast notification for starting profile update
+            toast("Updating profile...");
+            console.log("Updating user profile with data:", data);
+
             const token = localStorage.getItem("access_token");
-            const res = await fetch(`${API_URL}/socs/api/v1/user/profile`, {
+            const res = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -126,12 +131,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             });
 
             if (!res.ok) {
+                // Error handling for failed update
+                toast.error("Failed to update profile");
                 console.error("Failed to update user profile");
                 return false;
             }
 
+            // Toast notification for successful update
+            toast.success("Profile updated successfully");
+
+            // Get the updated user profile data from the response
             const updatedProfile = await res.json();
-            setUserProfile(updatedProfile);
+
+            setUserProfile((prevProfile) => ({
+                ...prevProfile,
+                ...updatedProfile, // Merge updated fields with existing profile
+            }));
+
+
             return true;
         } catch (error) {
             console.error("Error updating profile:", error);
