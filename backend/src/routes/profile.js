@@ -3,7 +3,7 @@ import logger from '../logger.js'; //include to use logger
 import supabase from '../lib/supabaseClient.js';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
-jest.setTimeout(10000); 
+
 // Method to query the user profile
 export async function query_acc(req, res) {
   logger.debug("Authenticated user "+ req.user);
