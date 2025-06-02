@@ -1,10 +1,9 @@
 
 export interface UserProfile {
-    id: string
-    username: string
+    user_id: string
     email: string
-    firstName: string
-    lastName: string
+    first_name: string
+    last_name: string
     display_name: string
     phone_number?: string
     position?: string
