@@ -26,7 +26,7 @@ export function UserProfile({
   // Use the UserContext to get user profile data and methods
   const { userProfile, updateUserProfile, uploadProfilePicture } = useProfile();
 
-  // Todo: Add skeleton loading state for user profile data
+  // Todo: Add skeleton loading state for user profile data and handle loading state
 
 
   // Todo: Implement change password functionality and delete account functionality
