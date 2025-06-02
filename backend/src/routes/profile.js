@@ -102,17 +102,14 @@ export async function update_acc(req, res) { //the method
     // Check if req.user is authenticated
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
-    }else if (req.body.display_name === undefined || req.body.email === undefined){
+    }else if (req.body.display_name === undefined){
       logger.debug("Missing fields");
-      return res.status(422).json({ error: 'Display_name or email fields missing for body' })
+      return res.status(422).json({ error: 'Display_name missing for body' })
     }
     //if any of the fields not defined in body, updates as blank string
     const fields = {
         display_name : req.body.display_name,
         company: req.body.company !== undefined ? req.body.company : "",
-        profile_pic_url: req.body.profile_pic_url !== undefined ? req.body.profile_pic_url: "",
-        visibility: req.body.visibility !== undefined ? req.body.visibility : "public",
-        email: req.body.email,
         first_name: req.body.firstName !== undefined ? req.body.firstName : "",
         last_name: req.body.lastName !== undefined ? req.body.lastName : "",
         position : req.body.position !== undefined ? req.body.position : "",
