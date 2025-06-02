@@ -3,10 +3,10 @@ import logger from '../logger.js'; //include to use logger
 import supabase from '../lib/supabaseClient.js';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
-
+jest.setTimeout(10000); 
 // Method to query the user profile
 export async function query_acc(req, res) {
-  logger.debug("Authenticated user ", req.user);
+  logger.debug("Authenticated user "+ req.user);
   logger.debug("in GET profile,, authenticated users only");
 
   try {
@@ -14,7 +14,7 @@ export async function query_acc(req, res) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-   logger.debug("Fetching user profile for user ID:", req.user.id);
+   logger.debug("Fetching user profile for user ID:" + req.user.id);
 
     const { data, error } = await supabase
       .from('user_profiles')
@@ -22,16 +22,16 @@ export async function query_acc(req, res) {
       .eq('user_id', req.user.id)
       .single();
 
-    logger.debug("User profile data:", data);
+    logger.debug("User profile data:" +  JSON.stringify(data));
 
     if (error) {
-      logger.debug('Error fetching user profile:', error);
+      logger.debug('Error fetching user profile:' +  error);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
     return res.status(200).json(data);
   } catch (error) {
-    logger.debug('Unexpected error:', error);
+    logger.debug('Unexpected error: ' + error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
@@ -111,7 +111,7 @@ export async function update_acc(req, res) { //the method
         display_name : req.body.display_name,
         company: req.body.company !== undefined ? req.body.company : "",
         profile_pic_url: req.body.profile_pic_url !== undefined ? req.body.profile_pic_url: "",
-        visibility: req.body.visibilitiy !== undefined ? req.body.visibilitiy : "public",
+        visibility: req.body.visibility !== undefined ? req.body.visibility : "public",
         email: req.body.email,
         first_name: req.body.firstName !== undefined ? req.body.firstName : "",
         last_name: req.body.lastName !== undefined ? req.body.lastName : "",
@@ -124,10 +124,18 @@ export async function update_acc(req, res) { //the method
       .from('user_profiles')
       .update(fields) 
       .eq('user_id', req.user.id)
-      .single();
+      .select('*')
+      .single()
 
 
-    res.status(204).json("Updated user profile");
+    if (error) {
+      logger.debug('Error updating user profile:' + error);
+      return res.status(422).json({ error: error.message });
+    }else{
+      logger.debug("Succcess fully updated" + JSON.stringify(data));
+      res.status(200).json(data);
+    }
+    
   } catch (error) {
     // Handle any unexpected errors
     logger.debug('Error fetching user profile:', error);
@@ -152,7 +160,7 @@ export async function delete_acc(req, res) { //the method
     // user.id is response to reference the auth.users.id fk
   } catch (error) {
     // Handle any unexpected errors
-    logger.debug('Error fetching user profile:', error);
+    logger.debug('Error fetching user profile: ' + error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
