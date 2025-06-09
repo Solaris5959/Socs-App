@@ -42,8 +42,6 @@ export default function FeedComponent() {
                               placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
                         />
 
-
-
                         {/* Action Buttons */}
                         <div className="flex justify-between items-center mt-3">
                             <button
