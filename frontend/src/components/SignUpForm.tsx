@@ -42,8 +42,8 @@ export function SignUpForm({
     const userPassword2 = formData.get("password2") as string
     const userDisplayName = formData.get("displayName") as string
 
-     const newErrors: typeof errors = {}
-    // Todo: Validate the form data and display error messages if needed
+    const newErrors: typeof errors = {}
+    // Validate the form data and display error messages if needed
     // Email validation
     if (!userEmail) {
       newErrors.email = "Email is required"
@@ -107,7 +107,8 @@ export function SignUpForm({
                 name="email"
                 type="email"
                 placeholder="you@example.com"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
               {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
@@ -122,13 +123,13 @@ export function SignUpForm({
                 name="password"
                 type="password"
                 placeholder="••••••••"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
               {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
             </div>
-            
 
-            {/* Conirm Password Field */}
+            {/* Confirm Password Field */}
             <div className="grid gap-2">
               <label htmlFor="password2" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 Confirm Password
@@ -138,7 +139,8 @@ export function SignUpForm({
                 name="password2"
                 type="password"
                 placeholder="••••••••"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.password2 ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
               {errors.password2 && <p className="text-sm text-red-500">{errors.password2}</p>}
             </div>
@@ -153,15 +155,15 @@ export function SignUpForm({
                 name="displayName"
                 type="text"
                 placeholder="Your display name"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.displayName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
               {errors.displayName && <p className="text-sm text-red-500">{errors.displayName}</p>}
             </div>
 
             {/* Actions */}
             <div className="flex flex-col gap-3 pt-4">
-              <Button type="submit" className="w-full rounded-xl 
-              bg-blue-500 hover:bg-blue-700 text-white cursor-pointer">
+              <Button type="submit" className="w-full rounded-xl bg-blue-500 hover:bg-blue-700 text-white cursor-pointer">
                 Create Account
               </Button>
               <Link href="/" passHref>

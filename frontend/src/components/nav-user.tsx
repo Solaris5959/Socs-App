@@ -32,6 +32,8 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from "next/navigation"
 
+// Use context to access the sidebar state
+import { useProfile } from '../../contexts/UserContext';
 
 // User sidebar component
 export function NavUser({
@@ -46,6 +48,18 @@ export function NavUser({
   const { isMobile } = useSidebar()
   const { signOut } = useAuth();
   const router = useRouter()
+
+  // Use the UserContext to get user profile data and methods
+  const { userProfile } = useProfile();
+
+  // Assign user profile data to user variable
+  if (userProfile) {
+    user = {
+      name: userProfile?.first_name || user.name,
+      email: userProfile?.email || user.email,
+      avatar: userProfile?.profile_pic_url || user.avatar,
+    }
+  }
 
   // Function to handle sign out
   const handleSignOut = async () => {
@@ -68,7 +82,7 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src="" alt={user.name} />
+                <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">

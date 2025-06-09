@@ -1,9 +1,9 @@
-import { Metadata } from "next"
+
 import Image from "next/image"
 import bgImage from "@/assets/works-space-bg.jpg"
 import Footer from "@/components/Footer"
 import { LoginForm } from "@/components/LoginForm"
-
+import { Metadata } from "next"
 export const metadata: Metadata = {
   title: "SOCS | Login",
   description: "Login to SOCS - the social media platform for creators and professionals.",
