@@ -28,7 +28,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/app/forgot-password"
+    "src/app/forgot-password",
+    "src/assets/sample-posts.tsx"
   ],
   "exclude": ["node_modules"]
 }

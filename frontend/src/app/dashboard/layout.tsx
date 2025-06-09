@@ -1,6 +1,5 @@
 'use client'
 
-
 import { UserProvider } from "../../../contexts/UserContext"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
@@ -22,13 +21,15 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from "react"
 import Link from 'next/link'
 
+import { SearchForm } from "@/components/search-form"
+
 export default function Layout({ children }: { children: React.ReactNode }) {
 
-    /// Todo: Breadcrumb configuration
+
     // Render breadcrumb based on current path
     const breadcrumbConfig = {
         '/dashboard': 'Home',
-        '/dashboard/myposts': 'My Posts', // Example path
+        '/dashboard/myposts': 'My Posts',
         '/dashboard/favorites': 'Favorite Posts',
         '/dashboard/connections': 'My Connections',
         '/dashboard/chats': 'Chats',
@@ -83,7 +84,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
+                        <div className="flex-1" />
+                        {/* Searcher component */}
+                        <div className="mr-4  w-[300px]">
+                            <SearchForm />
+                        </div>
                     </header>
+
+
 
                     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                         <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">{children}</div>

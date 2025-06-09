@@ -1,6 +1,7 @@
 import React from 'react'
 import { UserProfile } from '@/components/UserProfile'
 
+
 import { Metadata } from "next"
 export const metadata: Metadata = {
     title: "User Profile | SOCS",
