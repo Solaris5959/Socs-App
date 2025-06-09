@@ -8,7 +8,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Importing the method test using ESM syntax
 import { test } from './test.js';
 import { base } from './dashboardRoutes.js'
-import { query_acc, update_acc, delete_acc, upload_avatar, query_posts } from './profile.js'
+import { query_acc, update_acc, delete_acc, upload_avatar} from './profile.js'
+import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
 
 // Note: Import everything from profile.js as 
 
@@ -23,9 +24,19 @@ router.get('/dashboard', base); //for GET dashboard/calls http://localhost:8080s
 // profile routes
 // route: socs/api/v1/profile
 router.get('/profile', query_acc) //GET profile/calls 
-router.get('/profile/posts', query_posts) //GET for retrieving user's profile & posts made
 router.post('/profile/upload-avatar', upload.single("avatar"), upload_avatar);
 router.put('/profile', update_acc) //PUT for updating user profile
-router.delete('/profile', delete_acc) // DEL for deleting user profile, posts etc
+router.delete('/profile', delete_acc) // DEL for deleting user profile 
+
+//Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
+router.get('chat' , query_chat) //return all chats for user 
+router.get('chat/:id', read_msg), //return all msgs with id
+router.post('chat/:id', new_msg) //send a new message to id
+router.put('chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
+router.delete('chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
+
+
+
+
 
 export default router; //export for server.js
