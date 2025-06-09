@@ -41,7 +41,7 @@ describe('/ profile routes', () => {
             'Content-Type': 'application/json'
         });
         expect(profile.statusCode).toBe(422);
-        expect(profile.body.error).toBe("Display_name or email fields missing for body")
+        expect(profile.body.error).toBe("Display_name missing for body")
     });
 
     
@@ -49,8 +49,6 @@ describe('/ profile routes', () => {
         const fields = {
             display_name : "Audrey Tester",
             company: "Seneca College",
-            visibility:"public",
-            email: user.email,
             firstName: "Test",
             lastName: "Test",
             position : "Student"
