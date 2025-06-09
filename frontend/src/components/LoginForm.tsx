@@ -97,41 +97,46 @@ export function LoginForm({
         <CardContent>
           <form onSubmit={handleSubmit} >
             <div className="flex flex-col gap-6 sm:w-1/2 w-full mx-auto">
-              <div className="grid gap-3 ">
-                {/* username input */}
+              <div className="grid gap-3">
+                {/* Email input */}
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="Username"
-                  required
-                  className="w-full px-4 py-2 rounded-2xl border border-gray-200 
-                  bg-gray-50 text-gray-900 
-                  focus:outline-none transition duration-150 ease-in-out"
+                  className={`w-full px-4 py-2 rounded-2xl border bg-gray-50 text-gray-900 
+            focus:outline-none transition duration-150 ease-in-out
+            ${errors.email ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
                 />
-                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-              </div>
-              <div className="grid gap-3">
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
 
                 {/* Password input */}
                 <Input
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Password" required
-                  className="w-full px-4 py-2 rounded-2xl border border-gray-200 
-                  bg-gray-50 text-gray-900 
-                  focus:outline-none transition duration-150 ease-in-out" />
+                  placeholder="Password"
+                  className={`w-full px-4 py-2 rounded-2xl border bg-gray-50 text-gray-900 
+            focus:outline-none transition duration-150 ease-in-out
+            ${errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
               </div>
-              {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
 
+              {/* Submit button */}
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full rounded-xl
-                 bg-blue-500 hover:bg-blue-600 cursor-pointer">
+                <Button
+                  type="submit"
+                  className="w-full rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                >
                   Login
                 </Button>
-
               </div>
+
             </div>
             <div className="mt-4 text-center text-sm">
 
