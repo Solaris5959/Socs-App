@@ -41,7 +41,7 @@ describe('/ profile routes', () => {
             'Content-Type': 'application/json'
         });
         expect(profile.statusCode).toBe(422);
-        expect(profile.body.error).toBe("Display_name missing for body")
+        expect(profile.body.error).toBe("Missing update body data")
     });
 
     
@@ -49,8 +49,8 @@ describe('/ profile routes', () => {
         const fields = {
             display_name : "Audrey Tester",
             company: "Seneca College",
-            firstName: "Test",
-            lastName: "Test",
+            first_name: "Test",
+            last_name: "Test",
             position : "Student"
         };
         const login = await request(app).post('/socs/api/v1/user/login')
@@ -71,6 +71,21 @@ describe('/ profile routes', () => {
         expect(updated_profile.body.phone_number.length).toBe(0);
     });
 
+    test('Removing a user', async () => {
+        const newTest = await request(app).post('/socs/api/v1/user/register')
+        .send({email: "test@YOPmail.com", password: "Test123456000", displayname: "Test"})
+        expect(newTest.statusCode).toBe(201);
+        const login = await request(app).post('/socs/api/v1/user/login')
+        .send({email: "test@YOPmail.com", password: "Test123456000"})
+        
+        const del = await request(app)
+        .delete('/socs/api/v1/index/profile/')
+        .set({
+            'Authorization': `Bearer ${login.body.session.access_token}`,
+            'Content-Type': 'application/json'
+        })
+        expect(del.statusCode).toBe(200);
+    });
     
 
 });

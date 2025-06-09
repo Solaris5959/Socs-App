@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
         //logger.info("Login data: " + JSON.stringify(data, null, 2));
 
         if (error) {
-            logger.debug("Login Error:" + err);
+            logger.debug("Login Error:" + error);
             return res.status(401).json({ message: error.message });
         }
 
