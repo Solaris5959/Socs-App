@@ -1,9 +1,15 @@
-import React from 'react'
+import MyFavorites from "@/components/MyFavorites";
+
+import { Metadata } from "next";
+// Page title and description
+export const metadata: Metadata = {
+    title: "SOCS | Favorite Posts",
+    description: "Socs social media app",
+};
+
 
 export default function page() {
     return (
-        <div className="flex flex-row items-center justify-center">
-            <h1 className='m-2 text-2xl text-center'>Favorite posts go here</h1>
-        </div>
+        <MyFavorites />
     )
 }

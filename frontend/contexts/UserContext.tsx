@@ -22,45 +22,72 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
 
     // Use effect to fetch user profile on mount
-    // Todo: Add refresh token logic to handle session expiration
     useEffect(() => {
-        // Fetch user profile data from the API
+
+        // Function to fetch user profile with token
+        const fetchWithToken = async (token: string): Promise<Response> => {
+            return fetch(`${API_URL}/socs/api/v1/index/profile`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        };
+
+        // Function to refresh access token
+        const refreshAccessToken = async (): Promise<string | null> => {
+            try {
+                const response = await fetch(`${API_URL}/socs/api/v1/user/refresh-token`, {
+                    method: 'POST',
+                    credentials: 'include', // Required for HttpOnly cookie
+                });
+
+                if (!response.ok) {
+                    console.warn('⚠️ Refresh token request failed');
+                    return null;
+                }
+
+                const { accessToken } = await response.json();
+                localStorage.setItem('access_token', accessToken);
+                console.info('🔄 Access token refreshed successfully');
+                return accessToken;
+            } catch (err) {
+                console.error('Error refreshing access token:', err);
+                return null;
+            }
+        };
+
+        // Function to fetch user profile
         const fetchUserProfile = async () => {
             try {
+                let token = localStorage.getItem('access_token');
+                if (!token) throw new Error('No access token available');
 
+                let response = await fetchWithToken(token);
 
-                // get user token from local storage
-                const token = localStorage.getItem("access_token");
-
-
-                // Fetch user profile data from the API
-                const response = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Use Bearer token for authentication 
-                    }
-                });
                 if (!response.ok) {
-                    throw new Error('Failed to fetch user profile');
+                    console.warn('Access token may have expired. Attempting refresh...');
+
+                    // Try to refresh the access token
+                    token = await refreshAccessToken();
+
+                    if (!token) throw new Error('Token refresh failed');
+
+                    response = await fetchWithToken(token);
+                    if (!response.ok) throw new Error('Failed to fetch profile after token refresh');
                 }
-                const data = await response.json();
 
-                // Log to see the fetched data
-                console.log('User profile fetched:', data);
-                setUserProfile(data);
-
-
-
+                const profileData = await response.json();
+                console.log('User profile fetched:', profileData);
+                setUserProfile(profileData);
             } catch (error) {
-                console.error('Error fetching user profile:', error);
-
+                console.error('Failed to load user profile:', error);
             }
-        }
+        };
+
         fetchUserProfile();
     }, []);
-
-
 
     // Method to upload profile picture
     const uploadProfilePicture = async (file: File): Promise<boolean> => {

@@ -31,8 +31,6 @@ export function ForgotPasswordForm({
     // Get the form values
     const userEmail = formData.get("email") as string
 
-
-
     // Todo: Validate the form data and display error messages if needed
 
 
