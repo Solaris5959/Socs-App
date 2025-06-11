@@ -117,7 +117,6 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
 
     }
 
-    // Todo: Method to add a reply to a comment
     const addReply = async (postId: string, commentId: string, content: string) => {
 
     }
@@ -140,7 +139,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
     // Todo: Method to unfavorite a post
     const unfavoritePost = async (postId: string) => {
 
-    }
+    }  // Todo: Method to add a reply to a comment
+
 
 
 
