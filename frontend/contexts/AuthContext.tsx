@@ -95,6 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
 
+            console.log("Response", response);
+
             // If the response is not OK, return false
             if (!response.ok) {
                 toast.error("Registration failed. Please try again.");
@@ -106,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Show success message and redirect to login page
             toast.success("Registration successful!", {
-                description: "Please check your email for confirmation.",
+                description: "You can now log in with your credentials.",
             });
 
             // Delay to allow toast to render
@@ -153,8 +155,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Parse the response data
             const data = await response.json();
-
-
 
             // Set cookies and local storage with the access token
             localStorage.setItem("access_token", data.session.access_token);

@@ -55,7 +55,7 @@ export function NavUser({
   // Assign user profile data to user variable
   if (userProfile) {
     user = {
-      name: userProfile?.first_name || user.name,
+      name: userProfile?.display_name || user.name,
       email: userProfile?.email || user.email,
       avatar: userProfile?.profile_pic_url || user.avatar,
     }

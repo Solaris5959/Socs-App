@@ -211,4 +211,9 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+
+// Todo: Route to refresh the access token
+// POST /user/refresh-token
+
+
 export default router;

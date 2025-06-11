@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ProfileContextType, UserProfile } from '@/interface/ProfileContextType';
 import { toast } from "sonner"
+import { useRouter } from 'next/navigation'
 
 // Create a context for user profile management
 export const UserContext = createContext<ProfileContextType | undefined>(undefined)
@@ -14,11 +15,14 @@ const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
 
-    // State to hold user profile data
+
+    // State to manage user and session
+    const router = useRouter();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
 
     // Use effect to fetch user profile on mount
+    // Todo: Add refresh token logic to handle session expiration
     useEffect(() => {
         // Fetch user profile data from the API
         const fetchUserProfile = async () => {
@@ -160,7 +164,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const deleteUserAccount = async (): Promise<boolean> => {
         try {
             const token = localStorage.getItem("access_token");
-            const res = await fetch(`${API_URL}/socs/api/v1/user/delete`, {
+            const res = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -172,11 +176,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 return false;
             }
 
+            // Toast notification for successful delete
+            toast.success("Account deleted successfully");
+
             // Optional: clear local state or redirect
             setUserProfile(null);
 
             localStorage.removeItem("access_token");
-            window.location.href = "/"; // or use router.push('/')
+
+
+            // Redirect to home page after deletion
+            router.push("/");
+
+
             return true;
         } catch (error) {
             console.error("Error deleting account:", error);
