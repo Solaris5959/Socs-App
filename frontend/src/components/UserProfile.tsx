@@ -1,6 +1,16 @@
 'use client'
 import { Camera } from "lucide-react"
-
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,12 +34,12 @@ export function UserProfile({
 }: React.ComponentProps<"div">) {
 
   // Use the UserContext to get user profile data and methods
-  const { userProfile, updateUserProfile, uploadProfilePicture } = useProfile();
+  const { userProfile, updateUserProfile, uploadProfilePicture, deleteUserAccount } = useProfile();
 
   // Todo: Add skeleton loading state for user profile data and handle loading state
 
 
-  // Todo: Implement change password functionality and delete account functionality
+  // Todo: Implement change password functionality
 
   // State to manage editing mode
   const [isEditing, setIsEditing] = React.useState(false)
@@ -41,6 +51,8 @@ export function UserProfile({
   function handleCameraClick() {
     fileInputRef.current?.click()
   }
+
+
 
   // Handle form submission for updating user profile
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -84,6 +96,19 @@ export function UserProfile({
 
     return success
   }
+
+  // Handle delete account action
+  async function handleDeleteAccount() {
+
+    // Confirm the action with the user
+    const success = await deleteUserAccount()
+
+    return success
+
+  }
+
+
+
 
   return (
     <div className={cn("flex items-center justify-center px-4 py-8", className)} {...props}>
@@ -236,14 +261,38 @@ export function UserProfile({
               </div>
 
               {/* Right-aligned destructive action */}
-              <div className="flex justify-end flex-col sm:flex-row sm:gap-4 gap-3">
-                <Button
-                  variant="destructive"
-                  type="button"
-                  className="rounded-xl cursor-pointer"
-                >
-                  Delete Account
-                </Button>
+              <div className="flex justify-end">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      className="rounded-xl cursor-pointer w-full"
+                    >
+                      Delete Account
+                    </Button>
+                  </AlertDialogTrigger>
+
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Do you want to delete your account?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your account
+                        and remove your data from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        className="bg-red-600 hover:bg-red-700 cursor-pointer"
+                      >
+                        Confirm Deletion
+                      </AlertDialogAction>
+                      <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </form>

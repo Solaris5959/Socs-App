@@ -211,4 +211,43 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+
+// Todo: Route to refresh the access token
+// POST /user/refresh-token
+// Make sure cookie parser is applied in app.js/server.js
+
+router.post('/refresh-token', async (req, res) => {
+    const refresh_token = req.cookies['refresh_token'];
+
+    if (!refresh_token) {
+        return res.status(401).json({ error: 'No refresh token provided' });
+    }
+
+    try {
+        const { data, error } = await supabase.auth.refreshSession({ refresh_token });
+
+        if (error) {
+            return res.status(401).json({ error: 'Failed to refresh token' });
+        }
+
+        // Refresh the cookie 
+        res.cookie('refresh_token', data.session.refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Strict',
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        return res.json({
+            accessToken: data.session.access_token,
+            expiresIn: data.session.expires_in,
+            user: data.user
+        });
+    } catch (err) {
+        return res.status(500).json({ error: 'Server error refreshing token' });
+    }
+});
+
+
 export default router;

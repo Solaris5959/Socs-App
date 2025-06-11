@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ProfileContextType, UserProfile } from '@/interface/ProfileContextType';
 import { toast } from "sonner"
+import { useRouter } from 'next/navigation'
 
 // Create a context for user profile management
 export const UserContext = createContext<ProfileContextType | undefined>(undefined)
@@ -14,49 +15,79 @@ const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
 
-    // State to hold user profile data
+
+    // State to manage user and session
+    const router = useRouter();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
 
     // Use effect to fetch user profile on mount
     useEffect(() => {
-        // Fetch user profile data from the API
+
+        // Function to fetch user profile with token
+        const fetchWithToken = async (token: string): Promise<Response> => {
+            return fetch(`${API_URL}/socs/api/v1/index/profile`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        };
+
+        // Function to refresh access token
+        const refreshAccessToken = async (): Promise<string | null> => {
+            try {
+                const response = await fetch(`${API_URL}/socs/api/v1/user/refresh-token`, {
+                    method: 'POST',
+                    credentials: 'include', // Required for HttpOnly cookie
+                });
+
+                if (!response.ok) {
+                    console.warn('⚠️ Refresh token request failed');
+                    return null;
+                }
+
+                const { accessToken } = await response.json();
+                localStorage.setItem('access_token', accessToken);
+                console.info('🔄 Access token refreshed successfully');
+                return accessToken;
+            } catch (err) {
+                console.error('Error refreshing access token:', err);
+                return null;
+            }
+        };
+
+        // Function to fetch user profile
         const fetchUserProfile = async () => {
             try {
+                let token = localStorage.getItem('access_token');
+                if (!token) throw new Error('No access token available');
 
+                let response = await fetchWithToken(token);
 
-                // get user token from local storage
-                const token = localStorage.getItem("access_token");
-
-
-                // Fetch user profile data from the API
-                const response = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`, // Use Bearer token for authentication 
-                    }
-                });
                 if (!response.ok) {
-                    throw new Error('Failed to fetch user profile');
+                    console.warn('Access token may have expired. Attempting refresh...');
+
+                    // Try to refresh the access token
+                    token = await refreshAccessToken();
+
+                    if (!token) throw new Error('Token refresh failed');
+
+                    response = await fetchWithToken(token);
+                    if (!response.ok) throw new Error('Failed to fetch profile after token refresh');
                 }
-                const data = await response.json();
 
-                // Log to see the fetched data
-                console.log('User profile fetched:', data);
-                setUserProfile(data);
-
-
-
+                const profileData = await response.json();
+                console.log('User profile fetched:', profileData);
+                setUserProfile(profileData);
             } catch (error) {
-                console.error('Error fetching user profile:', error);
-
+                console.error('Failed to load user profile:', error);
             }
-        }
+        };
+
         fetchUserProfile();
     }, []);
-
-
 
     // Method to upload profile picture
     const uploadProfilePicture = async (file: File): Promise<boolean> => {
@@ -160,7 +191,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const deleteUserAccount = async (): Promise<boolean> => {
         try {
             const token = localStorage.getItem("access_token");
-            const res = await fetch(`${API_URL}/socs/api/v1/user/delete`, {
+            const res = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -172,11 +203,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 return false;
             }
 
+            // Toast notification for successful delete
+            toast.success("Account deleted successfully");
+
             // Optional: clear local state or redirect
             setUserProfile(null);
 
             localStorage.removeItem("access_token");
-            window.location.href = "/"; // or use router.push('/')
+
+
+            // Redirect to home page after deletion
+            router.push("/");
+
+
             return true;
         } catch (error) {
             console.error("Error deleting account:", error);
