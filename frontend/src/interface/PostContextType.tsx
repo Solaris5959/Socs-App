@@ -4,7 +4,7 @@
 export interface PostContextType {
 
     // Methods to manage posts
-    fetchPosts: () => Promise<void>   // API: GET /socs/api/v1/index/posts 
+    fchPetosts: () => Promise<void>   // API: GET /socs/api/v1/index/posts 
     fetchUserPosts: () => Promise<void> // API: GET /socs/api/v1/index/posts/user 
     fetchFavoritePosts: () => Promise<void>  // API: GET /socs/api/v1/index/posts/favorites 
     addPost: (content: string, image?: File) => Promise<void> // API: POST /socs/api/v1/index/posts 
