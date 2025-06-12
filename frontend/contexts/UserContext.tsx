@@ -35,49 +35,32 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             });
         };
 
-        // Function to refresh access token
-        const refreshAccessToken = async (): Promise<string | null> => {
-            try {
-                const response = await fetch(`${API_URL}/socs/api/v1/user/refresh-token`, {
-                    method: 'POST',
-                    credentials: 'include', // Required for HttpOnly cookie
-                });
-
-                if (!response.ok) {
-                    console.warn('⚠️ Refresh token request failed');
-                    return null;
-                }
-
-                const { accessToken } = await response.json();
-                localStorage.setItem('access_token', accessToken);
-                console.info('🔄 Access token refreshed successfully');
-                return accessToken;
-            } catch (err) {
-                console.error('Error refreshing access token:', err);
-                return null;
-            }
-        };
 
         // Function to fetch user profile
         const fetchUserProfile = async () => {
             try {
-                let token = localStorage.getItem('access_token');
-                if (!token) throw new Error('No access token available');
 
-                let response = await fetchWithToken(token);
+                // Get the access token from local storage
+                const token = localStorage.getItem("access_token");
 
-                if (!response.ok) {
-                    console.warn('Access token may have expired. Attempting refresh...');
-
-                    // Try to refresh the access token
-                    token = await refreshAccessToken();
-
-                    if (!token) throw new Error('Token refresh failed');
-
-                    response = await fetchWithToken(token);
-                    if (!response.ok) throw new Error('Failed to fetch profile after token refresh');
+                // If no token is found, redirect to login or handle accordingly
+                if (!token) {
+                    console.warn('No access token found, redirecting to login');
+                    router.push("/");
+                    return;
                 }
 
+                // Fetch user profile using the token
+                const response = await fetchWithToken(token);
+                console.log("Response from user profile fetch:", response);
+
+                //Refresh token if the response is not ok (e.g., 401 Unauthorized)
+                if (!response.ok) {
+                    console.warn('No access token found, trying to refresh token');
+
+                }
+
+                // Parse the response to get user profile data
                 const profileData = await response.json();
                 console.log('User profile fetched:', profileData);
                 setUserProfile(profileData);

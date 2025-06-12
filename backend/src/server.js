@@ -8,7 +8,6 @@ import logger from './logger.js';
 import supabase from './lib/supabaseClient.js';
 import apiRoutes from './routes/index.js'; // Route import
 import userRoutes from './routes/userRoutes.js';
-import cookieParser from 'cookie-parser'; // For parsing cookies, especially for refresh tokens
 
 
 // Load environment variables
@@ -19,7 +18,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cookieParser()); // Parse cookies for refresh tokens
+
+
 
 
 
