@@ -34,6 +34,7 @@ export function ForgotPasswordForm({
     // Todo: Validate the form data and display error messages if needed
 
 
+
     // Call the resetpassword function from AuthContext
     const result = await forgetPassword(userEmail);
 
@@ -64,7 +65,7 @@ export function ForgotPasswordForm({
                 name="email"
                 type="email"
                 placeholder="you@example.com"
-                required
+
               />
             </div>
 

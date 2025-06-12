@@ -2,9 +2,8 @@
 'use client'
 
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { AuthContextType } from '@/interface/AuthContextType';
-import { Session, User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation'
 import { toast } from "sonner"
 
@@ -20,58 +19,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // State to manage user and session
     const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-
-
-    // Check the session and user state on component mount
-    useEffect(() => {
-
-        // Method to check the session and user state
-        const checkSession = async () => {
-
-            // Get the access token from local storage after login
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/socs/api/v1/user/session`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    localStorage.removeItem("access_token");
-                    setUser(null);
-                    setSession(null);
-                    setIsLoading(false);
-                    return;
-                }
-
-                const data = await response.json();
-
-
-                // Set user and session state
-                setUser(data.user);
-                setSession({ access_token: token } as Session);
-
-
-            } catch (error) {
-                console.error("Session check failed", error);
-                localStorage.removeItem("access_token");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        checkSession();
-    }, []);
 
 
     // Method to sign up the user
@@ -95,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
 
-            console.log("Response", response);
 
             // If the response is not OK, return false
             if (!response.ok) {
@@ -156,8 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Parse the response data
             const data = await response.json();
 
+
+
             // Set cookies and local storage with the access token
             localStorage.setItem("access_token", data.session.access_token);
+
+
 
             // Show success message and redirect to dashboard page
             toast.success("Login successful!");
@@ -180,8 +130,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Method to sign out the user
     const signOut = async () => {
         localStorage.removeItem("access_token");
-        setUser(null);
-        setSession(null);
         toast.success("Signed out successfully.");
         router.push("/");
     };
@@ -306,9 +254,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // State variables to manage user and session
     const value = {
-        user,
-        session,
-        isLoading,
         signUp,
         signIn,
         signOut,

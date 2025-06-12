@@ -1,11 +1,11 @@
 // routes/users.js
 import express from 'express';
 import supabase from '../lib/supabaseClient.js'; // Correct import
-import supbaseAdmin from '../lib/supabaseAdmin.js'; // Correct import
 import logger from '../logger.js'
-const router = express.Router();
 import jwt from 'jsonwebtoken';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
+
+const router = express.Router();
 
 // POST /users/register
 router.post('/register', async (req, res) => {
@@ -53,27 +53,23 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
-        // Check if there was an error during login
-        //logger.info("Login data: " + JSON.stringify(data, null, 2));
-
-        if (error) {
-            logger.debug("Login Error:" + error);
-            return res.status(401).json({ message: error.message });
+        if (error || !data.session) {
+            logger.debug("Login Error:" + error?.message || 'No session returned');
+            return res.status(401).json({ message: error?.message || 'Invalid credentials' });
         }
 
-        // Return the session information
+        // Send access token + basic session info to client
         res.status(200).json({
             message: 'User logged in successfully',
-            session: data.session, // reuse to send as Bearer token for access
+            session: data.session,
         });
     } catch (err) {
-        logger.error("Internal server error:" + err);
+        logger.error("Internal server error: " + err);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -177,8 +173,6 @@ router.post('/reset-password', async (req, res) => {
     // This endpoint is called when the user clicks the reset link in their email
     const { token, newPassword } = req.body;
 
-
-
     if (!token || !newPassword) {
         return res.status(400).json({ message: "Token and new password are required" });
     }
@@ -212,42 +206,8 @@ router.post('/reset-password', async (req, res) => {
 });
 
 
-// Todo: Route to refresh the access token
-// POST /user/refresh-token
-// Make sure cookie parser is applied in app.js/server.js
 
-router.post('/refresh-token', async (req, res) => {
-    const refresh_token = req.cookies['refresh_token'];
 
-    if (!refresh_token) {
-        return res.status(401).json({ error: 'No refresh token provided' });
-    }
-
-    try {
-        const { data, error } = await supabase.auth.refreshSession({ refresh_token });
-
-        if (error) {
-            return res.status(401).json({ error: 'Failed to refresh token' });
-        }
-
-        // Refresh the cookie 
-        res.cookie('refresh_token', data.session.refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'Strict',
-            path: '/',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-
-        return res.json({
-            accessToken: data.session.access_token,
-            expiresIn: data.session.expires_in,
-            user: data.user
-        });
-    } catch (err) {
-        return res.status(500).json({ error: 'Server error refreshing token' });
-    }
-});
 
 
 export default router;
