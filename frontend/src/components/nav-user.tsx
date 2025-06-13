@@ -29,11 +29,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from "next/navigation"
 
 // Use context to access the sidebar state
-import { useProfile } from '../../contexts/UserContext';
+import { useProfile } from '../contexts/UserContext';
 
 // User sidebar component
 export function NavUser({

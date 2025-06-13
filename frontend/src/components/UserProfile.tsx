@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-import { useProfile } from '../../contexts/UserContext';
+import { useProfile } from '@/contexts/UserContext';
 import React, { useRef } from "react"
 
 // UserProfile component for displaying and updating user profile information

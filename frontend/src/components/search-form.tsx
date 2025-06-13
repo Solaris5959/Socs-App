@@ -6,7 +6,7 @@ import { SidebarInput } from "@/components/ui/sidebar"
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
     return (
         <form {...props}>
-            <div className="relative ">
+            <div className="relative">
                 <Label htmlFor="search" className="sr-only">
                     Search
                 </Label>
