@@ -2,7 +2,7 @@
 'use client'
 import { createContext, useContext, useState } from 'react';
 import { PostContextType } from '@/interface/PostContextType';
-import { Post } from '@/interface/Post';
+
 import { toast } from "sonner"
 
 
