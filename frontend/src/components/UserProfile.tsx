@@ -36,6 +36,7 @@ export function UserProfile({
   // Use the UserContext to get user profile data and methods
   const { userProfile, updateUserProfile, uploadProfilePicture, deleteUserAccount } = useProfile();
 
+
   // Todo: Add skeleton loading state for user profile data and handle loading state
 
 
@@ -169,7 +170,7 @@ export function UserProfile({
                 <label htmlFor="first_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   First Name
                 </label>
-                <Input id="first_name" name="first_name" defaultValue={userProfile?.first_name || "N/A"} disabled={!isEditing} />
+                <Input id="first_name" name="first_name" defaultValue={userProfile?.first_name} disabled={!isEditing} />
               </div>
 
               {/* Last Name */}
@@ -177,7 +178,7 @@ export function UserProfile({
                 <label htmlFor="last_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Last Name
                 </label>
-                <Input id="last_name" name="last_name" defaultValue={userProfile?.last_name || "N/A"} disabled={!isEditing} />
+                <Input id="last_name" name="last_name" defaultValue={userProfile?.last_name} disabled={!isEditing} />
               </div>
 
               {/* Display Name */}
@@ -185,7 +186,7 @@ export function UserProfile({
                 <label htmlFor="display_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Display Name
                 </label>
-                <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name || "N/A"} disabled={!isEditing} />
+                <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name} disabled={!isEditing} />
               </div>
 
               {/* Email */}
@@ -193,7 +194,7 @@ export function UserProfile({
                 <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Email
                 </label>
-                <Input id="email" name="email" type="email" defaultValue={userProfile?.email || "N/A"} disabled />
+                <Input id="email" name="email" type="email" defaultValue={userProfile?.email} disabled />
               </div>
 
               {/* Phone Number */}
@@ -201,7 +202,7 @@ export function UserProfile({
                 <label htmlFor="phone_number" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Phone Number
                 </label>
-                <Input id="phone_number" name="phone_number" type="tel" defaultValue={userProfile?.phone_number || "N/A"} disabled={!isEditing} />
+                <Input id="phone_number" name="phone_number" type="tel" defaultValue={userProfile?.phone_number} disabled={!isEditing} />
               </div>
 
               {/* Position */}
@@ -209,7 +210,7 @@ export function UserProfile({
                 <label htmlFor="position" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Position
                 </label>
-                <Input id="position" name="position" defaultValue={userProfile?.position || "N/A"} disabled={!isEditing} />
+                <Input id="position" name="position" defaultValue={userProfile?.position} disabled={!isEditing} />
               </div>
 
               {/* Company */}
@@ -217,7 +218,7 @@ export function UserProfile({
                 <label htmlFor="company" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Company
                 </label>
-                <Input id="company" name="company" defaultValue={userProfile?.company || "N/A"} disabled={!isEditing} />
+                <Input id="company" name="company" defaultValue={userProfile?.company} disabled={!isEditing} />
               </div>
             </div>
 

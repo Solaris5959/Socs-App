@@ -90,12 +90,16 @@ app.listen(HTTP_PORT, () => {
 
 //Error handling
 app.use((req, res, next) => {
-  res.status(404).json({ error: 'Not Found' });
+  const error = new Error('Not Found');
+  error.status = 404;
+  next(error);
 });
 
 app.use((err, req, res, next) => {
   logger.debug(err.stack); // Log the error stack for debugging
   res.status(500).json({ error: 'Internal Server Error' });
+
+  next(err); // Pass the error to the next middleware
 });
 
 export default app;

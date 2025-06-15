@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 
 // Create a context for post management
+// Todo: Add toast for each method to show success or error messages
 export const PostContext = createContext<PostContextType | undefined>(undefined);
 
 // URL for the authentication service
@@ -41,6 +42,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            return data; // Return the fetched posts data
+
         } catch (error) {
             console.error('Error fetching posts:', error);
         } finally {
@@ -66,6 +69,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to fetch user posts');
             }
             const data = await response.json();
+
+            return data; // Return the fetched user posts data
 
         } catch (error) {
             console.error('Error fetching user posts:', error);
@@ -93,6 +98,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to fetch favorite posts');
             }
             const data = await response.json();
+
+            return data; // Return the fetched favorite posts data
 
         } catch (error) {
             console.error('Error fetching favorite posts:', error);
@@ -139,6 +146,10 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            return data; // Return the added post data
+
+
+
         } catch (error) {
             console.error('Error adding a post:', error);
             toast.error('Failed to add a post.');
@@ -170,6 +181,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to add a comment');
             }
             const data = await response.json();
+
+            return data; // Return the added comment data
 
         } catch (error) {
             console.error('Error adding a comment:', error);
@@ -203,6 +216,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            return data; // Return the added reply data
+
         } catch (error) {
             console.error('Error adding a replay:', error);
             toast.error('Failed to add a replay');
@@ -235,6 +250,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            return data; // Return the liked post data
+
         } catch (error) {
             console.error('Error liking a post:', error);
             toast.error('Failed to like a post');
@@ -265,6 +282,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to add a favorite post');
             }
             const data = await response.json();
+
+            return data; // Return the favorited post data
 
         } catch (error) {
             console.error('Error adding a favorite post:', error);
@@ -297,6 +316,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            return data; // Return the unliked post data
+
         } catch (error) {
             console.error('Error deleting a like from a post:', error);
             toast.error('Failed to delete a like from a post');
@@ -327,6 +348,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to delete a favorite from a post');
             }
             const data = await response.json();
+
+            return data; // Return the unfavorited post data
 
         } catch (error) {
             console.error('Error deleting a favorite from a post:', error);
