@@ -33,7 +33,7 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
         };
 
         checkAuth();
-    }, [pathname]);
+    }, [pathname, router]);
 
     if (!authorized) return null;
 

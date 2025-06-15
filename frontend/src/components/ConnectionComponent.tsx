@@ -15,8 +15,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Importing connection context to manage connections
-import { useConnection } from '@/contexts/ConnectionContext';
+// Todo: Importing connection context to manage connections
+// import { useConnection } from '@/contexts/ConnectionContext';
 
 // Sample connections data (requested, suggested, and connected)
 import SAMPLE_CONNECTIONS from "@/assets/sample-connection";

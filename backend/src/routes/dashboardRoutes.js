@@ -1,4 +1,4 @@
-import express from 'express';
+// import express from 'express';
 import logger from '../logger.js';
 
 //const router = express.Router();
@@ -24,17 +24,17 @@ import logger from '../logger.js';
 
 
 
-export async function base(req,res) { //the method 
-    logger.debug("in test, authenticated users only")
-    try {
+export async function base(req, res) { //the method 
+  logger.debug("in test, authenticated users only")
+  try {
     // Check if req.user is authenticated
     if (!req.user) {
-        return res.status(401).json({ error: 'User not authenticated' });
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
     // Access the authenticated user from req.user
     logger.debug(req.user);
-    res.status(200).json("Route under construction..."); 
+    res.status(200).json("Route under construction...");
     // see sample object return
     // user.id is response to reference the auth.users.id fk
   } catch (error) {
