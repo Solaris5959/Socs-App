@@ -1,4 +1,4 @@
-// Interface for the AuthContextex
+// Interface for the ConnectionContextex
 export interface ConnectionContextType {
     fetchSuggestConnections: () => Promise<void>; // API: GET /socs/api/v1/index/connections
     fetchUserConnections: () => Promise<void>; // API: GET /socs/api/v1/index/connections/user

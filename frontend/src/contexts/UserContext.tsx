@@ -25,7 +25,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
 
         // Function to fetch user profile with token
-        const fetchWithToken = async (token: string): Promise<Response> => {
+        const fetchWithToken = async (token: string | null): Promise<Response> => {
             return fetch(`${API_URL}/socs/api/v1/index/profile`, {
                 method: 'GET',
                 headers: {
@@ -36,6 +36,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         };
 
 
+
         // Function to fetch user profile
         const fetchUserProfile = async () => {
             try {
@@ -43,15 +44,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 // Get the access token from local storage
                 const token = localStorage.getItem("access_token");
 
-                // If no token is found, redirect to login or handle accordingly
-                if (!token) {
-                    console.warn('No access token found, redirecting to login');
-                    router.push("/");
-                    return;
-                }
+                // // If no token is found, redirect to login or handle accordingly
+                // if (!token) {
+                //     console.warn('No access token found, redirecting to login');
+                //     router.push("/");
+                //     return;
+                // }
 
                 // Fetch user profile using the token
                 const response = await fetchWithToken(token);
+
+
                 console.log("Response from user profile fetch:", response);
 
                 //Refresh token if the response is not ok (e.g., 401 Unauthorized)
