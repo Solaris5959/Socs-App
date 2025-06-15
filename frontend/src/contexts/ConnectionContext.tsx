@@ -101,27 +101,27 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
 
 
     // Todo: Method to send a connection request
-    const sendConnectionRequest = async (userId: string) => {
+    // const sendConnectionRequest = async (userId: string) => {
 
 
-    }
+    // }
 
     // Todo: Method to accept a connection request
-    const acceptConnectionRequest = async (requestId: string) => {
+    // const acceptConnectionRequest = async (requestId: string) => {
 
 
-    }
+    // }
 
     // Todo: Method to decline a connection request
-    const declineConnectionRequest = async (requestId: string) => {
+    // const declineConnectionRequest = async (requestId: string) => {
 
-    }
+    // }
 
     // Todo: Method to remove a connection
-    const removeConnection = async (connectionId: string) => {
+    // const removeConnection = async (connectionId: string) => {
 
 
-    }
+    // }
 
 
     // State variables to manage connection features
@@ -130,10 +130,10 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
         fetchSuggestConnections,
         fetchUserConnections,
         fetchConnectionRequests,
-        sendConnectionRequest,
-        acceptConnectionRequest,
-        declineConnectionRequest,
-        removeConnection,
+        // sendConnectionRequest,
+        // acceptConnectionRequest,
+        // declineConnectionRequest,
+        // removeConnection,
     }
 
     return (
