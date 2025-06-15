@@ -107,39 +107,234 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
 
     // Todo: Method to add a new post
     const addPost = async (content: string, image?: File) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
+            let body: BodyInit;
 
+            if (image) {
+                // Use FormData if there's an image
+                const formData = new FormData();
+                formData.append("content", content);
+                formData.append("image", image);
+                body = formData;
+                // Do not set 'Content-Type', browser will set it to multipart/form-data with boundary
+            } else {
+                // Send JSON if no image
+                body = JSON.stringify({ content });
+            }
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body,
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add a post');
+            }
+            const data = await response.json();
 
+        } catch (error) {
+            console.error('Error adding a post:', error);
+            toast.error('Failed to add a post.');
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Todo: Method to add a comment to a post
     const addComment = async (postId: string, content: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                    content,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add a comment');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error adding a comment:', error);
+            toast.error('Failed to add a comment');
+        } finally {
+            setLoading(false);
+        }
     }
 
     const addReply = async (postId: string, commentId: string, content: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments/replies`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                    commentId,
+                    content,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add a reply');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error adding a replay:', error);
+            toast.error('Failed to add a replay');
+        } finally {
+            setLoading(false);
+        }
     }
 
 
     // Todo: Method to like a post
     const likePost = async (postId: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to like a post');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error liking a post:', error);
+            toast.error('Failed to like a post');
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Todo: Method to favorite a post
     const favoritePost = async (postId: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
+
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add a favorite post');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error adding a favorite post:', error);
+            toast.error('Failed to add a favorite post');
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Todo: Method to unlike a post
     const unlikePost = async (postId: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete a like from a post');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error deleting a like from a post:', error);
+            toast.error('Failed to delete a like from a post');
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Todo: Method to unfavorite a post
     const unfavoritePost = async (postId: string) => {
+        setLoading(true);
+        try {
+            // get user token from local storage    
+            const token = localStorage.getItem("access_token");
 
-    }  // Todo: Method to add a reply to a comment
+            // Fetch favorite posts from the API
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorite`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+                },
+                body: JSON.stringify({
+                    postId,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete a favorite from a post');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error('Error deleting a favorite from a post:', error);
+            toast.error('Failed to delete a favorite from a post');
+        } finally {
+            setLoading(false);
+        }
+    }
 
 
 
