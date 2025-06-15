@@ -80,6 +80,8 @@ export function UserProfile({
 
     const newErrors: typeof errors = {}
 
+    
+    
     // Display name validation
     if (!userDisplayName) {
       newErrors.displayName = "Display name is required"
