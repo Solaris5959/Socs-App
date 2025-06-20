@@ -5,7 +5,7 @@ import markdown from "@eslint/markdown";
 import jest from "eslint-plugin-jest";
 import { defineConfig } from "eslint/config";
 
-
+// Resolve conflict: use the lastes config
 export default defineConfig([
   { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: {...globals.browser, ...globals.node} } },
@@ -13,4 +13,5 @@ export default defineConfig([
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.md"], plugins: { markdown }, language: "markdown/gfm", extends: ["markdown/recommended"] },
   { files: ["**/*.test.js", "**/__tests__/**/*.js"], plugins: { jest }, languageOptions: { globals: globals.jest, }, rules: { },},
+
 ]);
