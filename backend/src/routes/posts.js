@@ -412,7 +412,7 @@ export async function favourite_post(req, res) {
       .single();
 
     if (error) {
-      logger.debug('Error favoriting post:' + JSON.stringify(error));
+      logger.debug('Error favouriting post:' + JSON.stringify(error));
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
@@ -503,7 +503,7 @@ export async function unfavourite_post(req, res) {
       .eq('user_id', req.user.id); // Match current user
 
     if (error) {
-      logger.debug('Error unfavoriting post:' + JSON.stringify(error));
+      logger.debug('Error unfavouriting post:' + JSON.stringify(error));
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
