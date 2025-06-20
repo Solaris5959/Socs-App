@@ -1,45 +1,99 @@
-// import express from 'express';
+//import express from 'express';
+import supabase from '../lib/supabaseClient.js';
 import logger from '../logger.js';
 
-//const router = express.Router();
+export async function get_basic_dashboard(req, res) {
+  logger.debug("Fetching Basic Dashboard");
 
-// router.get('/', (req, res) => {
-//   res.status(501).json({ error: 'Not implemented yet' });
-// });
-
-// /**
-//  * Catch-all 404 for any undefined dashboard routes
-//  */
-// router.use((req, res) => {
-//   res.status(404).json({ error: 'Dashboard route not found' });
-// });
-
-// /**
-//  * Error handler for this router
-//  */
-// router.use((err, req, res, next) => {
-//   logger.error('Dashboard router error:', err);
-//   res.status(500).json({ error: 'Internal server error' });
-// });
-
-
-
-export async function base(req, res) { //the method 
-  logger.debug("in test, authenticated users only")
   try {
-    // Check if req.user is authenticated
-    if (!req.user) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    // Access the authenticated user from req.user
-    logger.debug(req.user);
-    res.status(200).json("Route under construction...");
-    // see sample object return
-    // user.id is response to reference the auth.users.id fk
-  } catch (error) {
-    // Handle any unexpected errors
-    logger.debug('Error fetching user profile:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    logger.debug(`Fetching dashboard posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
+
+    const { data, error } = await supabase
+      .rpc('get_base_dashboard', {
+        limit_num: limit,
+        offset_num: offset,
+      });
+
+    if (error) {
+      logger.error({ error }, 'Error fetching base dashboard:');
+      return res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error({ err }, 'Unexpected error:');
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+export async function get_user_dashboard(req, res) {
+  logger.debug("Fetching 'My Posts' dashboard");
+
+  try {
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Parse pagination parameters from query string
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    logger.debug(`Fetching posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
+
+    // Call the Supabase RPC
+    const { data, error } = await supabase
+      .rpc('get_my_posts', {
+        limit_num: limit,
+        offset_num: offset
+      });
+
+    if (error) {
+      logger.error({ error }, 'Error fetching my posts dashboard:');
+      return res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error({ err }, 'Unexpected error:');
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+export async function get_favorite_dashboard(req, res) {
+  logger.debug("Fetching Favorites Dashboard");
+
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    logger.debug(`Fetching favorited posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
+
+    const { data, error } = await supabase
+      .rpc('get_favourites_dashboard', {
+        limit_num: limit,
+        offset_num: offset,
+      });
+
+    if (error) {
+      logger.error({error}, 'Error fetching favorites dashboard:');
+      return res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error('Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

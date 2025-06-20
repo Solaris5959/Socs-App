@@ -7,9 +7,36 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Importing the method test using ESM syntax
 import { test } from './test.js';
-import { base } from './dashboardRoutes.js'
+import { get_basic_dashboard, get_user_dashboard, get_favorite_dashboard } from './dashboardRoutes.js'
 import { query_acc, update_acc, delete_acc, upload_avatar} from './profile.js'
-import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
+import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js
+'
+// Resolved conflict: import both post.js and connection.js
+import {
+  query_posts,
+  query_user_posts,
+  query_favourite_posts,
+  create_post,
+  create_comment,
+  create_reply,
+  like_post,
+  favourite_post,
+  unlike_post,
+  unfavourite_post
+} from './posts.js';
+
+import {
+  query_connections,
+  new_connection,
+  delete_connection,
+  query_connection_requests,
+  new_connection_request,
+  delete_connection_request,
+  query_followers,
+  query_following,
+  new_follow,
+  delete_follow
+} from './connections.js';
 
 // Note: Import everything from profile.js as 
 
@@ -19,7 +46,9 @@ import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
 router.get('/test_auth', test); //sample route to follow
 
 // dashboard routes 
-router.get('/dashboard', base); //for GET dashboard/calls http://localhost:8080socs/api/v1/dashboard
+router.get('/dashboard', get_basic_dashboard); //for GET dashboard/calls /socs/api/v1/index/dashboard
+router.get('/dashboard/my-posts', get_user_dashboard); //for GET dashboard/user-posts/calls /socs/api/v1/index/dashboard/user-posts
+router.get('/dashboard/favorite-posts', get_favorite_dashboard); //for GET dashboard/favorite-posts/calls /socs/api/v1/index/dashboard/favorite-posts
 
 // profile routes
 // route: socs/api/v1/profile
@@ -28,12 +57,43 @@ router.post('/profile/upload-avatar', upload.single("avatar"), upload_avatar);
 router.put('/profile', update_acc) //PUT for updating user profile
 router.delete('/profile', delete_acc) // DEL for deleting user profile 
 
+// ====== Post Routes ======
+
+// GET
+router.get('/posts', query_posts);
+router.get('/posts/user', query_user_posts);
+router.get('/posts/favourites', query_favourite_posts);
+
+// POST
+router.post('/posts', upload.single('image'), create_post); // for text + optional image
+router.post('/posts/comments', create_comment);
+router.post('/posts/comments/replies', create_reply);
+router.post('/posts/like', like_post);
+router.post('/posts/favourite', favourite_post);
+
+// DELETE
+router.delete('/posts/like', unlike_post);
+router.delete('/posts/favourite', unfavourite_post);
+
 //Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
-router.get('chat' , query_chat) //return all chats for user 
-router.get('chat/:id', read_msg), //return all msgs with id
-router.post('chat/:id', new_msg) //send a new message to id
-router.put('chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
-router.delete('chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
+router.get('/chat' , query_chat) //return all chats for user 
+router.get('/chat/:id', read_msg), //return all msgs with id
+router.post('/chat/:id', new_msg) //send a new message to id
+router.put('/chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
+router.delete('/chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
+
+// Connections/Follows + Connection Requests
+router.get('/connections', query_connections) //GET all connections for user
+router.post('/connections', new_connection) //POST to create a new connection
+router.delete('/connections/:id', delete_connection) //DELETE a connection by id
+router.get('/connections/requests', query_connection_requests) //GET all connection requests for user
+router.post('/connections/requests', new_connection_request) //POST to create a new connection request
+router.delete('/connections/requests/:id', delete_connection_request) //DELETE a connection request by id
+
+router.get('/connections/followers', query_followers) //GET all followers for user
+router.get('/connections/following', query_following) //GET all following for user
+router.post('/connections/follow', new_follow) //POST to follow a user
+router.delete('/connections/unfollow/:id', delete_follow) //DELETE to unfollow a user
 
 
 
