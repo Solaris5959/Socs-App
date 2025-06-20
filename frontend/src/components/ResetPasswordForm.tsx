@@ -36,7 +36,7 @@ export function ResetPasswordForm({
 
     // Get the form values
     const password = formData.get("password") as string
-    const password2 = formData.get("password2") as string
+    //const password2 = formData.get("password2") as string
 
     const newErrors: typeof errors = {}
 
