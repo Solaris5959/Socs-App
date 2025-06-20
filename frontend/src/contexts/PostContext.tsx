@@ -121,7 +121,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             let body: BodyInit;
-            let headers: HeadersInit = {
+            const headers: HeadersInit = {
                 'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
             };
 
@@ -254,7 +254,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                     toast.error('Post already liked');
                     return null;
                 }
-                throw new Error('Failed to like a post');
+                throw new Error(errorData.error || 'Failed to create post');
             }
             const data = await response.json();
 
@@ -293,7 +293,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                     toast.error('Post already favourited');
                     return null;
                 }
-                throw new Error('Failed to add a favourite post');
+                throw new Error(errorData.error || 'Failed to create post');
             }
             const data = await response.json();
 
