@@ -5,12 +5,13 @@ import markdown from "@eslint/markdown";
 import jest from "eslint-plugin-jest";
 import { defineConfig } from "eslint/config";
 
-
+// Setup ESLint configuration for various file types
 export default defineConfig([
   { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
-  { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: {...globals.browser, ...globals.node} } },
+  { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   { files: ["**/*.json"], plugins: { json }, language: "json/json", extends: ["json/recommended"] },
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.md"], plugins: { markdown }, language: "markdown/gfm", extends: ["markdown/recommended"] },
-  { files: ["**/*.test.js", "**/__tests__/**/*.js"], plugins: { jest }, languageOptions: { globals: globals.jest, }, rules: { },},
+  { files: ["**/*.test.js", "**/__tests__/**/*.js"], plugins: { jest }, languageOptions: { globals: globals.jest, }, rules: {}, },
+
 ]);
