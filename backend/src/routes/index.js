@@ -10,6 +10,7 @@ import { test } from './test.js';
 import { get_basic_dashboard, get_user_dashboard, get_favorite_dashboard } from './dashboardRoutes.js'
 import { query_acc, update_acc, delete_acc, upload_avatar} from './profile.js'
 import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
+import { query_connections, new_connection, delete_connection, query_connection_requests, new_connection_request, delete_connection_request, query_followers, query_following, new_follow, delete_follow } from './connections.js';
 
 // Note: Import everything from profile.js as 
 
@@ -36,6 +37,19 @@ router.get('chat/:id', read_msg), //return all msgs with id
 router.post('chat/:id', new_msg) //send a new message to id
 router.put('chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
 router.delete('chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
+
+// Connections/Follows + Connection Requests
+router.get('/connections', query_connections) //GET all connections for user
+router.post('/connections', new_connection) //POST to create a new connection
+router.delete('/connections/:id', delete_connection) //DELETE a connection by id
+router.get('/connections/requests', query_connection_requests) //GET all connection requests for user
+router.post('/connections/requests', new_connection_request) //POST to create a new connection request
+router.delete('/connections/requests/:id', delete_connection_request) //DELETE a connection request by id
+
+router.get('/connections/followers', query_followers) //GET all followers for user
+router.get('/connections/following', query_following) //GET all following for user
+router.post('/connections/follow', new_follow) //POST to follow a user
+router.delete('/connections/unfollow/:id', delete_follow) //DELETE to unfollow a user
 
 
 
