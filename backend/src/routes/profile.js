@@ -4,8 +4,6 @@ import supabase from '../lib/supabaseClient.js';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
 
-
-
 // Method to query the user profile
 export async function query_acc(req, res) {
   logger.debug("Authenticated user " + req.user);
@@ -37,7 +35,6 @@ export async function query_acc(req, res) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
 
 // Method to handle avatar upload for a new profile picture
 export async function upload_avatar(req, res) {
@@ -107,9 +104,6 @@ export async function upload_avatar(req, res) {
   }
 }
 
-
-
-
 // Method to update the user profile
 export async function update_acc(req, res) { //the method 
   logger.debug("in PUT profile, authenticated users only")
@@ -154,7 +148,6 @@ export async function update_acc(req, res) { //the method
   }
 }
 
-
 // Todo: Implement the following methods
 export async function delete_acc(req, res) { //the method 
   logger.debug("in DEL profile, authenticated users only")
@@ -175,9 +168,6 @@ export async function delete_acc(req, res) { //the method
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
-
-
 
 //////////////  Helper functions //////////
 
@@ -213,7 +203,6 @@ async function deleteOldAvatar(existingProfile) {
     }
   }
 }
-
 
 // Funtion to update the user profile with the new avatar URL
 export async function updateProfileWithAvatarUrl(userId, avatarUrl) {

@@ -29,7 +29,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // Fetch posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/dashboard`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             // get user token from local storage
             const token = localStorage.getItem("access_token");
             // Fetch user posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/user`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/dashboard/my-posts`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 throw new Error('Failed to fetch user posts');
             }
             const data = await response.json();
-
+            console.log('User posts fetched successfully:', data);
         } catch (error) {
             console.error('Error fetching user posts:', error);
             toast.error('Failed to fetch user posts');
@@ -82,7 +82,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
             // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorites`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/dashboard/favorite-posts`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,6 +158,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         likePost,
         unlikePost,
         unfavoritePost,
+        // Add this line to satisfy the required property in PostContextType
+        fchPetosts: fetchPosts, // or provide the correct function if it's different
     }
 
     return (
