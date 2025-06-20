@@ -1,4 +1,3 @@
-
 'use client'
 import { createContext, useContext, useState } from 'react';
 import { PostContextType } from '@/interface/PostContextType';
@@ -18,7 +17,6 @@ const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 export function PostProvider({ children }: { children: React.ReactNode }) {
 
     // State to manage posts, favorite posts, and user posts
-
     const [loading, setLoading] = useState<boolean>(false);
 
 
@@ -29,8 +27,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             // get user token from local storage
             const token = localStorage.getItem("access_token");
 
-            // Fetch posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts`, {
+            // URL matches backend route: GET /posts
+            const response = await fetch(`${API_URL}/posts`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,6 +44,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
 
         } catch (error) {
             console.error('Error fetching posts:', error);
+            toast.error('Failed to fetch posts');
         } finally {
             setLoading(false);
         }
@@ -57,8 +56,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         try {
             // get user token from local storage
             const token = localStorage.getItem("access_token");
-            // Fetch user posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/user`, {
+            // URL matches backend route: GET /posts/user
+            const response = await fetch(`${API_URL}/posts/user`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,13 +80,14 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fetch favorite posts from the API
-    const fetchFavoritePosts = async () => {
+    // Note: Backend returns only post IDs, you may need to fetch full post data separately
+    const fetchFavouritePosts = async () => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorites`, {
+            // URL matches backend route: GET /posts/favourites
+            const response = await fetch(`${API_URL}/posts/favourites`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -95,24 +95,25 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 }
             });
             if (!response.ok) {
-                throw new Error('Failed to fetch favorite posts');
+                throw new Error('Failed to fetch favourite posts');
             }
             const data = await response.json();
 
-            return data; // Return the fetched favorite posts data
+            return data; // Return the fetched favourite post IDs (not full post data)
 
         } catch (error) {
-            console.error('Error fetching favorite posts:', error);
-            toast.error('Failed to fetch favorite posts');
+            console.error('Error fetching favourite posts:', error);
+            toast.error('Failed to fetch favourite posts');
         } finally {
             setLoading(false);
         }
     }
 
+    // Legacy alias for backward compatibility
+    const fetchFavoritePosts = fetchFavouritePosts;
 
 
-
-    // Todo: Method to add a new post
+    // Method to add a new post
     const addPost = async (content: string, image?: File) => {
         setLoading(true);
         try {
@@ -120,6 +121,9 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             let body: BodyInit;
+            let headers: HeadersInit = {
+                'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+            };
 
             if (image) {
                 // Use FormData if there's an image
@@ -127,18 +131,16 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 formData.append("content", content);
                 formData.append("image", image);
                 body = formData;
-                // Do not set 'Content-Type', browser will set it to multipart/form-data with boundary
+                // Do not set 'Content-Type' for FormData, browser will set it automatically
             } else {
                 // Send JSON if no image
+                headers['Content-Type'] = 'application/json';
                 body = JSON.stringify({ content });
             }
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts`, {
+
+            const response = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
-                },
+                headers,
                 body,
             });
             if (!response.ok) {
@@ -146,9 +148,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            toast.success('Post created successfully!');
             return data; // Return the added post data
-
-
 
         } catch (error) {
             console.error('Error adding a post:', error);
@@ -158,15 +159,15 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // Todo: Method to add a comment to a post
+    // Method to add a comment to a post
     const addComment = async (postId: string, content: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments`, {
+            // URL matches backend route: POST /posts/comments
+            const response = await fetch(`${API_URL}/posts/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -182,6 +183,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            toast.success('Comment added successfully!');
             return data; // Return the added comment data
 
         } catch (error) {
@@ -192,22 +194,22 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const addReply = async (postId: string, commentId: string, content: string) => {
+    // Method to add a reply to a comment
+    const addReply = async (commentId: string, content: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments/replies`, {
+            // URL matches backend route: POST /posts/comments/replies
+            const response = await fetch(`${API_URL}/posts/comments/replies`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
                 },
                 body: JSON.stringify({
-                    postId,
-                    commentId,
+                    commentId, // Backend only needs commentId, not postId
                     content,
                 }),
             });
@@ -216,26 +218,27 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            toast.success('Reply added successfully!');
             return data; // Return the added reply data
 
         } catch (error) {
-            console.error('Error adding a replay:', error);
-            toast.error('Failed to add a replay');
+            console.error('Error adding a reply:', error);
+            toast.error('Failed to add a reply');
         } finally {
             setLoading(false);
         }
     }
 
 
-    // Todo: Method to like a post
+    // Method to like a post
     const likePost = async (postId: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
+            // URL matches backend route: POST /posts/like
+            const response = await fetch(`${API_URL}/posts/like`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -246,10 +249,16 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
             if (!response.ok) {
+                const errorData = await response.json();
+                if (response.status === 409) {
+                    toast.error('Post already liked');
+                    return null;
+                }
                 throw new Error('Failed to like a post');
             }
             const data = await response.json();
 
+            toast.success('Post liked!');
             return data; // Return the liked post data
 
         } catch (error) {
@@ -260,15 +269,15 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // Todo: Method to favorite a post
-    const favoritePost = async (postId: string) => {
+    // Method to favourite a post (British spelling to match backend)
+    const favouritePost = async (postId: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorite`, {
+            // URL matches backend route: POST /posts/favourite
+            const response = await fetch(`${API_URL}/posts/favourite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -279,29 +288,38 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
             if (!response.ok) {
-                throw new Error('Failed to add a favorite post');
+                const errorData = await response.json();
+                if (response.status === 409) {
+                    toast.error('Post already favourited');
+                    return null;
+                }
+                throw new Error('Failed to add a favourite post');
             }
             const data = await response.json();
 
-            return data; // Return the favorited post data
+            toast.success('Post favourited!');
+            return data; // Return the favourited post data
 
         } catch (error) {
-            console.error('Error adding a favorite post:', error);
-            toast.error('Failed to add a favorite post');
+            console.error('Error adding a favourite post:', error);
+            toast.error('Failed to add a favourite post');
         } finally {
             setLoading(false);
         }
     }
 
-    // Todo: Method to unlike a post
+    // Legacy alias for backward compatibility
+    const favoritePost = favouritePost;
+
+    // Method to unlike a post
     const unlikePost = async (postId: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
+            // URL matches backend route: DELETE /posts/like
+            const response = await fetch(`${API_URL}/posts/like`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -316,6 +334,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
+            toast.success('Post unliked!');
             return data; // Return the unliked post data
 
         } catch (error) {
@@ -326,15 +345,15 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // Todo: Method to unfavorite a post
-    const unfavoritePost = async (postId: string) => {
+    // Method to unfavourite a post (British spelling to match backend)
+    const unfavouritePost = async (postId: string) => {
         setLoading(true);
         try {
             // get user token from local storage    
             const token = localStorage.getItem("access_token");
 
-            // Fetch favorite posts from the API
-            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favorite`, {
+            // URL matches backend route: DELETE /posts/favourite
+            const response = await fetch(`${API_URL}/posts/favourite`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -345,37 +364,40 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 }),
             });
             if (!response.ok) {
-                throw new Error('Failed to delete a favorite from a post');
+                throw new Error('Failed to delete a favourite from a post');
             }
             const data = await response.json();
 
-            return data; // Return the unfavorited post data
+            toast.success('Post unfavourited!');
+            return data; // Return the unfavourited post data
 
         } catch (error) {
-            console.error('Error deleting a favorite from a post:', error);
-            toast.error('Failed to delete a favorite from a post');
+            console.error('Error deleting a favourite from a post:', error);
+            toast.error('Failed to delete a favourite from a post');
         } finally {
             setLoading(false);
         }
     }
 
-
-
-
+    // Legacy alias for backward compatibility
+    const unfavoritePost = unfavouritePost;
 
     // State variables to manage post features
     const value = {
         loading,
         fetchPosts,
         fetchUserPosts,
-        fetchFavoritePosts,
+        fetchFavouritePosts,
+        fetchFavoritePosts, // Legacy alias
         addPost,
         addComment,
         addReply,
-        favoritePost,
+        favouritePost,
+        favoritePost, // Legacy alias
         likePost,
         unlikePost,
-        unfavoritePost,
+        unfavouritePost,
+        unfavoritePost, // Legacy alias
     }
 
     return (
@@ -383,8 +405,6 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             {children}
         </PostContext.Provider>
     );
-
-
 }
 
 // Custom hook to use the PostContext
