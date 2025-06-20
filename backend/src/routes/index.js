@@ -8,9 +8,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Importing the method test using ESM syntax
 import { test } from './test.js';
 import { get_basic_dashboard, get_user_dashboard, get_favorite_dashboard } from './dashboardRoutes.js'
-import { query_acc, update_acc, delete_acc, upload_avatar} from './profile.js'
-import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js
-'
+import { query_acc, update_acc, delete_acc, upload_avatar } from './profile.js'
+import { query_chat, read_msg, new_msg, update_msg, delete_msg } from './chat.js'
+
+
 // Resolved conflict: import both post.js and connection.js
 import {
   query_posts,
@@ -76,9 +77,9 @@ router.delete('/posts/like', unlike_post);
 router.delete('/posts/favourite', unfavourite_post);
 
 //Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
-router.get('/chat' , query_chat) //return all chats for user 
+router.get('/chat', query_chat) //return all chats for user 
 router.get('/chat/:id', read_msg), //return all msgs with id
-router.post('/chat/:id', new_msg) //send a new message to id
+  router.post('/chat/:id', new_msg) //send a new message to id
 router.put('/chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
 router.delete('/chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
 
