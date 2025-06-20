@@ -2,115 +2,98 @@
 import supabase from '../lib/supabaseClient.js';
 import logger from '../logger.js';
 
-export async function get_base_dashboard(req, res) {
-  logger.debug("Getting Base Dashboard, authenticated users only");
+export async function get_basic_dashboard(req, res) {
+  logger.debug("Fetching Basic Dashboard");
 
   try {
-    if (!req.user) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const userId = req.user.id;
-    const page = parseInt(req.query.page || "1");
-    const pageSize = parseInt(req.query.page_size || "20");
-    const offset = (page - 1) * pageSize;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
 
-    // Step 1: Get followed user IDs
-    const { data: followedUsers, error: followsError } = await supabase
-      .from('follows')
-      .select('followed_id')
-      .eq('follower_id', userId);
+    logger.debug(`Fetching dashboard posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
 
-    if (followsError) {
-      logger.debug("Error fetching follows:", followsError);
-      return res.status(500).json({ error: 'Failed to fetch follows' });
-    }
-
-    const followedIds = followedUsers.map(f => f.followed_id);
-    if (followedIds.length === 0) {
-      return res.status(200).json({ posts: [] });
-    }
-
-    // Step 2: Get posts from followed users WITH counts
-    const { data: posts, error: postsError } = await supabase
-      .rpc('get_dashboard_posts_with_counts', {
-        followed_ids: followedIds,
-        limit_num: pageSize,
-        offset_num: offset
+    const { data, error } = await supabase
+      .rpc('get_base_dashboard', {
+        limit_num: limit,
+        offset_num: offset,
       });
 
-    if (postsError) {
-      logger.debug("Error fetching posts:", postsError);
+    if (error) {
+      logger.error({ error }, 'Error fetching base dashboard:');
       return res.status(500).json({ error: 'Failed to fetch posts' });
     }
 
-    return res.status(200).json({ posts });
-
-  } catch (error) {
-    logger.debug('Error fetching dashboard:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error({ err }, 'Unexpected error:');
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 
+export async function get_user_dashboard(req, res) {
+  logger.debug("Fetching 'My Posts' dashboard");
 
-export async function get_user_posts_dashboard(req, res) {
-  logger.debug("Getting User Posts Dashboard, authenticated users only");
   try {
-    // Check if req.user is authenticated
-    if (!req.user) {
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const userId = req.user.id;
-    const page = parseInt(req.query.page || "1");
-    const pageSize = parseInt(req.query.page_size || "20");
-    const offset = (page - 1) * pageSize;
-    
-    const { data: posts, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('author_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + pageSize - 1);
+    // Parse pagination parameters from query string
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    logger.debug(`Fetching posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
+
+    // Call the Supabase RPC
+    const { data, error } = await supabase
+      .rpc('get_my_posts', {
+        limit_num: limit,
+        offset_num: offset
+      });
 
     if (error) {
-      logger.debug("Error fetching user posts:", error);
-      return res.status(500).json({ error: 'Failed to fetch user posts' });
-    }
-    if (!posts || posts.length === 0) {
-      logger.debug("No posts found for user:", userId);
-      return res.status(200).json({ posts: [] });
+      logger.error({ error }, 'Error fetching my posts dashboard:');
+      return res.status(500).json({ error: 'Failed to fetch posts' });
     }
 
-    // Return the posts for the authenticated user
-    res.status(200).json({ posts });
-  } catch (error) {
-    // Handle any unexpected errors
-    logger.debug('Error fetching user posts dashboard:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error({ err }, 'Unexpected error:');
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 
-export async function get_favorite_posts_dashboard(req, res) {
-  logger.debug("Getting Favorite Posts Dashboard, authenticated users only");
+export async function get_favorite_dashboard(req, res) {
+  logger.debug("Fetching Favorites Dashboard");
+
   try {
-    // Check if req.user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ error: 'User not authenticated' });
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    // const userId = req.user.id;
-    // const page = parseInt(req.query.page || "1");
-    // const pageSize = parseInt(req.query.page_size || "20");
-    // const offset = (page - 1) * pageSize;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const offset = parseInt(req.query.offset, 10) || 0;
 
+    logger.debug(`Fetching favorited posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
 
+    const { data, error } = await supabase
+      .rpc('get_favourites_dashboard', {
+        limit_num: limit,
+        offset_num: offset,
+      });
 
-    res.status(200).json("Favorite posts dashboard under construction...");
-  } catch (error) {
-    // Handle any unexpected errors
-    logger.debug('Error fetching favorite posts dashboard:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    if (error) {
+      logger.error({error}, 'Error fetching favorites dashboard:');
+      return res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    logger.error('Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

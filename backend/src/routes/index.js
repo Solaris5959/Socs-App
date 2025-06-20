@@ -7,7 +7,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Importing the method test using ESM syntax
 import { test } from './test.js';
-import { get_base_dashboard, get_user_posts_dashboard, get_favorite_posts_dashboard } from './dashboardRoutes.js'
+import { get_basic_dashboard, get_user_dashboard, get_favorite_dashboard } from './dashboardRoutes.js'
 import { query_acc, update_acc, delete_acc, upload_avatar} from './profile.js'
 import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
 
@@ -19,9 +19,9 @@ import { query_chat, read_msg, new_msg, update_msg, delete_msg} from './chat.js'
 router.get('/test_auth', test); //sample route to follow
 
 // dashboard routes 
-router.get('/dashboard', get_base_dashboard); //for GET dashboard/calls /socs/api/v1/index/dashboard
-router.get('/dashboard/my-posts', get_user_posts_dashboard); //for GET dashboard/user-posts/calls /socs/api/v1/index/dashboard/user-posts
-router.get('/dashboard/favorite-posts', get_favorite_posts_dashboard); //for GET dashboard/favorite-posts/calls /socs/api/v1/index/dashboard/favorite-posts
+router.get('/dashboard', get_basic_dashboard); //for GET dashboard/calls /socs/api/v1/index/dashboard
+router.get('/dashboard/my-posts', get_user_dashboard); //for GET dashboard/user-posts/calls /socs/api/v1/index/dashboard/user-posts
+router.get('/dashboard/favorite-posts', get_favorite_dashboard); //for GET dashboard/favorite-posts/calls /socs/api/v1/index/dashboard/favorite-posts
 
 // profile routes
 // route: socs/api/v1/profile
