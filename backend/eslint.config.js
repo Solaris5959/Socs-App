@@ -5,7 +5,7 @@ import markdown from "@eslint/markdown";
 import jest from "eslint-plugin-jest";
 import { defineConfig } from "eslint/config";
 
-// Resolve conflict: use the lastes config
+// Setup ESLint configuration for various file types
 export default defineConfig([
   { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
