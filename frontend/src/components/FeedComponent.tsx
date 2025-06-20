@@ -9,7 +9,7 @@ export default function FeedComponent() {
 
     // Todo: Call post context to fetch posts and display them
 
-    // Todo: Scoll to reveal the rest of the feed when user scrolls down
+    // Todo: Scroll to reveal the rest of the feed when user scrolls down
 
     // Test data for posts
     const posts = SAMPLE_POSTS; // Replace with actual post data from context or API

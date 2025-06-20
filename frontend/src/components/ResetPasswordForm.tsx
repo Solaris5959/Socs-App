@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react"
 
 // SignupForm Component
 export function ResetPasswordForm({
@@ -20,6 +21,11 @@ export function ResetPasswordForm({
 
   // Use the AuthContext to get the signUp function
   const { resetPassword } = useAuth();
+
+  const [errors, setErrors] = useState<{
+      password?: string
+      password2?: string
+    }>({})
 
   // Function to handle form submission
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -32,10 +38,29 @@ export function ResetPasswordForm({
     const password = formData.get("password") as string
     //const password2 = formData.get("password2") as string
 
+    const newErrors: typeof errors = {}
 
 
     // Todo: Validate the form data and display error messages if needed
+    if (!password) {
+      newErrors.password = "Password is required"
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters"
+    } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      newErrors.password = "Password must contain both letters and numbers"
+    }
 
+    // Confirm password validation
+    if (password !== password2) {
+      newErrors.password2 = "Passwords do not match"
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
 
     // Call the resetpassword function from AuthContext
     const result = await resetPassword(password)
@@ -58,19 +83,6 @@ export function ResetPasswordForm({
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
-            {/* <div className="grid gap-2">
-              <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Email
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                required
-              />
-            </div> */}
 
             {/* Password Field */}
             <div className="grid gap-2">
@@ -82,8 +94,10 @@ export function ResetPasswordForm({
                 name="password"
                 type="password"
                 placeholder="••••••••"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.password ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
+              {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
             </div>
 
             {/* Conirm Password Field */}
@@ -96,8 +110,10 @@ export function ResetPasswordForm({
                 name="password2"
                 type="password"
                 placeholder="••••••••"
-                required
+                className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.password2 ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`}
               />
+              {errors.password2 && <p className="text-sm text-red-500">{errors.password2}</p>}
             </div>
 
 

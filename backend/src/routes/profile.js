@@ -61,6 +61,8 @@ export async function upload_avatar(req, res) {
         upsert: true,
       });
 
+    logger.debug("Upload data: " + JSON.stringify(uploadData));
+
     if (uploadError) {
       logger.debug('Error uploading avatar:', uploadError);
       return res.status(500).json({ error: 'Failed to upload to Supabase' });
@@ -113,8 +115,8 @@ export async function update_acc(req, res) { //the method
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    if (Object.keys(req.body).length === 0){
-      return res.status(422).json({error: 'Missing update body data'})
+    if (Object.keys(req.body).length === 0) {
+      return res.status(422).json({ error: 'Missing update body data' })
     }
     //if any of the fields not defined in body, updates as blank string
     // Note: 3 fileds are not updated here: 
@@ -156,9 +158,16 @@ export async function delete_acc(req, res) { //the method
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
-    
+
     const { data, error } = await supabaseAdmin.auth.admin.deleteUser(req.user.id)
-    
+
+    if (error) {
+      logger.debug('Error deleting user profile: ' + JSON.stringify(error));
+      return res.status(422).json({ error: error.message });
+    }
+
+    logger.debug("Delete user data: " + JSON.stringify(data));
+
     res.status(200).json("User is successfully deleted.");
     // see sample object return
     // user.id is response to reference the auth.users.id fk
@@ -183,8 +192,9 @@ async function deleteOldAvatar(existingProfile) {
     // Sanity check
     if (pathIndex === -1) {
       logger.debug("Invalid avatar URL format:", fullUrl);
-      return res.status(400).json({ error: 'Invalid avatar URL format' });
+      throw new Error('Invalid avatar URL format');
     }
+
 
     // Extract existing path avatars/user_id/<filename>
     const existingPath = fullUrl.substring(pathIndex + bucketPathPrefix.length);
@@ -199,7 +209,7 @@ async function deleteOldAvatar(existingProfile) {
 
     if (deleteError) {
       logger.debug('Error deleting existing avatar:', deleteError);
-      return res.status(500).json({ error: 'Failed to delete existing avatar' });
+      throw new Error('Failed to delete existing avatar');
     }
   }
 }
@@ -215,7 +225,7 @@ export async function updateProfileWithAvatarUrl(userId, avatarUrl) {
 
   if (updateError) {
     logger.debug('Error updating profile_pic_url:', updateError);
-    return res.status(500).json({ error: 'Failed to update profile picture URL' });
+    throw new Error('Failed to update profile with new avatar URL');
   }
 
   logger.debug("Avatar uploaded and updated successfully.");

@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner"
-import { AuthProvider } from "../../contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 //import RouteGuard from "./RouteGuard";
 
@@ -16,10 +16,10 @@ export default function RootLayout({
       <AuthProvider>
         <body>
           <main>
-            {/* <RouteGuard> */}
-            {children}
-            <Toaster />
-            {/* </RouteGuard> */}
+            <RouteGuard>
+              {children}
+              <Toaster />
+            </RouteGuard>
           </main>
         </body>
       </AuthProvider>

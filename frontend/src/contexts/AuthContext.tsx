@@ -28,8 +28,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Fetch request to the API for user registration
         try {
-
-
             const response = await fetch(`${API_URL}/socs/api/v1/user/register`, {
                 method: "POST",
                 headers: {
@@ -187,8 +185,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
 
-            console.log("New Password", newPassword);
-
             // Get the access from the the link
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
             const token = hashParams.get("access_token");
@@ -241,12 +237,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
     // Todo: Method to update password
-    const updatePassword = async (newPassword: string) => {
+    // const updatePassword = async (newPassword: string) => {
 
 
 
 
-    }
+    // }
 
 
 
@@ -259,7 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut,
         forgetPassword,
         resetPassword,
-        updatePassword,
+        //updatePassword,
 
     };
 

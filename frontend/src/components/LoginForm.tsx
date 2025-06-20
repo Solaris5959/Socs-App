@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import logoImage from "@/assets/socs-logo.png";
 import Link from "next/link"
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState } from "react";
 
 

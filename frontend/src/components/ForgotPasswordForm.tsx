@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react"
 
 // SignupForm Component
 export function ForgotPasswordForm({
@@ -20,6 +21,8 @@ export function ForgotPasswordForm({
 
   // Use the AuthContext to get the signUp function
   const { forgetPassword } = useAuth();
+
+  const [error, setError] = useState<{ email?: string }>({});
 
   // Function to handle form submission
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -31,9 +34,20 @@ export function ForgotPasswordForm({
     // Get the form values
     const userEmail = formData.get("email") as string
 
+    // Reset errors
+    const newErrors: { email?: string; password?: string } = {};
+
     // Todo: Validate the form data and display error messages if needed
+    if (!userEmail) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
+      newErrors.email = "Invalid email format";
+    }
 
-
+    if (Object.keys(newErrors).length > 0) {
+      setError(newErrors);
+      return;
+    }
 
     // Call the resetpassword function from AuthContext
     const result = await forgetPassword(userEmail);
@@ -65,8 +79,13 @@ export function ForgotPasswordForm({
                 name="email"
                 type="email"
                 placeholder="you@example.com"
-
+                aria-invalid={!!error.email}
+                className={cn(
+                  "w-full px-4 py-2 rounded-2xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out",
+                  error.email ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
+                )}
               />
+              {error.email && <p className="text-sm text-red-500">{error.email}</p>}
             </div>
 
 

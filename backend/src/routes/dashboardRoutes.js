@@ -97,6 +97,7 @@ export async function get_favorite_posts_dashboard(req, res) {
     // Check if req.user is authenticated
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
+      return res.status(401).json({ error: 'User not authenticated' });
     }
 
     // const userId = req.user.id;

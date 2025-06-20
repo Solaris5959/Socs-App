@@ -21,56 +21,42 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
 
-    // Use effect to fetch user profile on mount
     useEffect(() => {
-
-        // Function to fetch user profile with token
-        const fetchWithToken = async (token: string): Promise<Response> => {
-            return fetch(`${API_URL}/socs/api/v1/index/profile`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-        };
-
-
-        // Function to fetch user profile
+        // Fetch user profile data from the API
         const fetchUserProfile = async () => {
             try {
 
-                // Get the access token from local storage
+                // get user token from local storage
                 const token = localStorage.getItem("access_token");
 
-                // If no token is found, redirect to login or handle accordingly
-                if (!token) {
-                    console.warn('No access token found, redirecting to login');
-                    router.push("/");
-                    return;
-                }
 
-                // Fetch user profile using the token
-                const response = await fetchWithToken(token);
-                console.log("Response from user profile fetch:", response);
-
-                //Refresh token if the response is not ok (e.g., 401 Unauthorized)
+                // Fetch user profile data from the API
+                const response = await fetch(`${API_URL}/socs/api/v1/index/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`, // Use Bearer token for authentication 
+                    }
+                });
                 if (!response.ok) {
-                    console.warn('No access token found, trying to refresh token');
-
+                    throw new Error('Failed to fetch user profile');
                 }
+                const data = await response.json();
 
-                // Parse the response to get user profile data
-                const profileData = await response.json();
-                console.log('User profile fetched:', profileData);
-                setUserProfile(profileData);
+                // Log to see the fetched data
+                console.log('User profile fetched:', data);
+                setUserProfile(data);
+
+
+
             } catch (error) {
-                console.error('Failed to load user profile:', error);
-            }
-        };
+                console.error('Error fetching user profile:', error);
 
+            }
+        }
         fetchUserProfile();
     }, []);
+
 
     // Method to upload profile picture
     const uploadProfilePicture = async (file: File): Promise<boolean> => {
