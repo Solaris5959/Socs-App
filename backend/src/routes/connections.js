@@ -1,6 +1,8 @@
 import supabase from "../lib/supabaseClient.js";
 import logger from "../logger.js";
 
+
+// Returns all active connections for the current user.
 export async function query_connections(req, res) {
   logger.debug("Fetching user connections");
 
@@ -9,9 +11,10 @@ export async function query_connections(req, res) {
 
     logger.debug(`Fetching connections for user ID: ${userId}`);
 
+    // Get connections where user is either user_a or user_b
     const { data, error } = await supabase
       .from("connections")
-      .select("*")
+      .select("user_a, user_b, connected_at")
       .or(`user_a.eq.${userId},user_b.eq.${userId}`);
 
     logger.debug({ data, error }, "Fetched connections data");
@@ -21,19 +24,116 @@ export async function query_connections(req, res) {
       return res.status(500).json({ error: "Failed to fetch connections" });
     }
 
-    res.status(200).json(data);
+    // Added: Normalize the other user's ID
+    const connectedUserIds = data.map((conn) => {
+      return conn.user_a === userId ? conn.user_b : conn.user_a;
+    });
+
+
+    // Added: Get user details for connected users and store them in an array
+    const { data: userDetails } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position, profile_pic_url, is_online")
+      .in("user_id", connectedUserIds);
+
+
+
+    //  Profile details for connected users
+    logger.debug({ userDetails, error }, "Connection details for connected users");
+
+    res.status(200).json(userDetails);
+
   } catch (err) {
     logger.error({ err }, "Unexpected error while fetching connections:");
     res.status(500).json({ err: "Failed to fetch connections" });
   }
 }
 
+
+
+// Returns all users the current user is NOT connected with and not in 
+// pending requests (sent or received)
+export async function query_potential_connections(req, res) {
+  logger.debug("Fetching potential connections");
+
+  try {
+    const userId = req.user.id;
+
+    // Step 1: Fetch all current connections
+    const { data: connections, error: connectionsError } = await supabase
+      .from("connections")
+      .select("user_a, user_b")
+      .or(`user_a.eq.${userId},user_b.eq.${userId}`);
+
+    if (connectionsError) {
+      logger.error({ connectionsError }, "Error fetching existing connections");
+      return res.status(500).json({ error: "Failed to fetch connections" });
+    }
+
+    // Extract connected user IDs
+    const connectedUserIds = connections.map(conn =>
+      conn.user_a === userId ? conn.user_b : conn.user_a
+    );
+    connectedUserIds.push(userId); // Exclude self
+
+    // Step 2: Fetch all users not already connected
+    const { data: potentialUsers, error: usersError } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position, profile_pic_url, is_online")
+      .not("user_id", "in", `(${connectedUserIds.join(",")})`);
+
+    if (usersError) {
+      logger.error({ usersError }, "Error fetching potential users");
+      return res.status(500).json({ error: "Failed to fetch potential connections" });
+    }
+
+    // Step 3: Fetch connection requests (both sent and received)
+    const { data: connectionRequests, error: requestsError } = await supabase
+      .from("connection_requests")
+      .select("requester_id, recipient_id")
+      .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`);
+
+    if (requestsError) {
+      logger.error({ requestsError }, "Error fetching connection requests");
+      return res.status(500).json({ error: "Failed to fetch connection requests" });
+    }
+
+    // Build sets for fast lookup
+    const sentRequestIds = new Set(
+      connectionRequests.filter(r => r.requester_id === userId).map(r => r.recipient_id)
+    );
+    const receivedRequestIds = new Set(
+      connectionRequests.filter(r => r.recipient_id === userId).map(r => r.requester_id)
+    );
+
+    // Step 4: Exclude users who sent a request to the current user
+    // Also mark if the current user already sent a request to them
+    const enrichedUsers = potentialUsers
+      .filter(user => !receivedRequestIds.has(user.user_id)) // Exclude users who sent a request
+      .map(user => ({
+        ...user,
+        is_requested: sentRequestIds.has(user.user_id),
+      }));
+
+    logger.debug({ enrichedUsers }, "Fetched enriched potential connections");
+    return res.status(200).json(enrichedUsers);
+
+  } catch (err) {
+    logger.error({ err }, "Unexpected error while fetching potential connections");
+    return res.status(500).json({ error: "Unexpected failure" });
+  }
+}
+
+// Creates a new connection between two users. - Accepts user IDs in the connection request.
 export async function new_connection(req, res) {
   logger.debug("Creating new connection");
 
   try {
     const userA = req.user.id;
-    const userB = req.body.user_id;
+    const userB = req.params.id;
+
+    console.log("Sender:", userA);
+    console.log("Reciver:", userB);
 
     if (!userB || userA === userB)
       return res.status(400).json({ error: "Invalid user_id" });
@@ -43,12 +143,30 @@ export async function new_connection(req, res) {
     const [lower, upper] = userA < userB ? [userA, userB] : [userB, userA];
 
     // Delete mutual follows if they exist
-    await supabase
+    const { error: deleteFollow } = await supabase
       .from("follows")
       .delete()
       .or(
-        `follower_id.eq.${lower}&followed_id.eq.${upper},follower_id.eq.${upper}&followed_id.eq.${lower}`
+        `and(follower_id.eq.${lower},followed_id.eq.${upper}),and(follower_id.eq.${upper},followed_id.eq.${lower})`
+      )
+
+    if (deleteFollow) {
+      logger.error({ deleteFollow }, "Error deleting mutual follows:");
+      return res.status(500).json({ error: "Failed to delete mutual follows" });
+    }
+
+    // * Added - Delete any existing connection requests between these users
+    const { error: deleteRequestError } = await supabase
+      .from("connection_requests")
+      .delete()
+      .or(
+        `and(requester_id.eq.${userA},recipient_id.eq.${userB}),and(requester_id.eq.${userB},recipient_id.eq.${userA})`
       );
+
+    if (deleteRequestError) {
+      logger.error({ deleteRequestError }, "Error deleting existing connection requests:");
+      return res.status(500).json({ error: "Failed to delete existing connection requests" });
+    }
 
     // Insert connection
     const { error } = await supabase
@@ -67,6 +185,8 @@ export async function new_connection(req, res) {
   }
 }
 
+
+// Deletes a connection between two users - Remove connection 
 export async function delete_connection(req, res) {
   logger.debug("Deleting connection");
 
@@ -94,6 +214,7 @@ export async function delete_connection(req, res) {
   }
 }
 
+// Returns all connection requests where the current user is the recipient
 export async function query_connection_requests(req, res) {
   logger.debug("Fetching connection requests");
 
@@ -102,12 +223,11 @@ export async function query_connection_requests(req, res) {
 
     logger.debug(`Fetching connection requests for user ID: ${userId}`);
 
+    // Step 1: Only fetch requests where the current user is the recipient
     const { data, error } = await supabase
       .from("connection_requests")
       .select("*")
-      .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`);
-
-    logger.debug({ data, error }, "Fetched connection requests data");
+      .eq("recipient_id", userId);  // Only get requests sent *to* this user
 
     if (error) {
       logger.error({ error }, "Error fetching connection requests:");
@@ -116,22 +236,39 @@ export async function query_connection_requests(req, res) {
         .json({ error: "Failed to fetch connection requests" });
     }
 
-    res.status(200).json(data);
+    if (!data || data.length === 0) {
+      return res.status(200).json([]); // No pending requests
+    }
+
+    // Step 2: Get the user info of all requesters
+    const requesterIds = data.map(req => req.requester_id);
+
+    const { data: userDetails, error: userError } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position, profile_pic_url, is_online")
+      .in("user_id", requesterIds);
+
+    if (userError) {
+      logger.error({ userError }, "Error fetching user profiles for connection requests");
+      return res.status(500).json({ error: "Failed to fetch requester profiles" });
+    }
+
+    res.status(200).json(userDetails);
   } catch (err) {
-    logger.error(
-      { err },
-      "Unexpected error while fetching connection requests:"
-    );
+    logger.error({ err }, "Unexpected error while fetching connection requests:");
     res.status(500).json({ err: "Failed to fetch connection requests" });
   }
 }
-
+// Creates a new connection request between two users. - Send connection request
 export async function new_connection_request(req, res) {
   logger.debug("Creating new connection request");
 
   try {
     const requester = req.user.id;
     const recipient = req.body.user_id;
+
+    console.log("Requester ID:", requester);
+    console.log("Recipient ID:", recipient);
 
     if (!recipient || requester === recipient)
       return res.status(400).json({ error: "Invalid recipient" });
@@ -155,6 +292,7 @@ export async function new_connection_request(req, res) {
       (f) => f.follower_id === recipient
     );
 
+    // If A follows B AND B follows A
     if (followsRequester && followsRecipient) {
       // Create connection immediately
       const [lower, upper] =
@@ -195,6 +333,9 @@ export async function new_connection_request(req, res) {
   }
 }
 
+
+
+// Function to delete a connection request - Delete connection request
 export async function delete_connection_request(req, res) {
   logger.debug("Deleting connection request");
 
@@ -204,11 +345,12 @@ export async function delete_connection_request(req, res) {
 
     logger.debug(`Deleting connection request for user ID: ${userId} and other ID: ${otherId}`);
 
+    // Ensure the request is valid
     const { error } = await supabase
       .from("connection_requests")
       .delete()
       .or(
-        `requester_id.eq.${userId}&recipient_id.eq.${otherId},requester_id.eq.${otherId}&recipient_id.eq.${userId}`
+        `and(requester_id.eq.${userId},recipient_id.eq.${otherId}),and(requester_id.eq.${otherId},recipient_id.eq.${userId})`
       );
 
     if (error) {

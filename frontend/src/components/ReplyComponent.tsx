@@ -1,10 +1,10 @@
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Reply } from "@/interface/Post";
+import { ReplyType } from "@/interface/Post";
 import { formatDate, formatTime } from '@/lib/formatDate';
 
 interface ReplyProps {
-    reply: Reply;
+    reply: ReplyType;
 }
 // ReplyComponent to display individual replies to comments
 export default function ReplyComponent({ reply }: ReplyProps) {
@@ -18,19 +18,21 @@ export default function ReplyComponent({ reply }: ReplyProps) {
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                     <Avatar className="w-10 h-10 border border-gray-200">
-                        <AvatarImage src={reply.author.avatarUrl || undefined} alt="User Profile" />
+                        <AvatarImage src={reply.profile_pic_url || undefined} alt="User Profile" />
                         <AvatarFallback className="font-semibold dark:bg-slate-700 text-slate-600 dark:text-slate-200">
                             CN
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col text-sm">
-                        <p className="text-slate-800 dark:text-white font-bold">{reply.author.name}</p>
-                        <p className="text-slate-500 dark:text-slate-400">{reply.author.position} at {reply.author.company}</p>
+                        <p className="text-slate-800 dark:text-white font-bold">{reply.display_name}</p>
+                        {reply.company && reply.company !== 'N/A' && reply.position && reply.position !== 'N/A' && (
+                            <p className="text-slate-500 dark:text-slate-400">{reply.position} at {reply.company}</p>
+                        )}
                     </div>
                 </div>
                 <div className="text-right text-xs text-gray-500 dark:text-slate-400">
-                    <p>{formatDate(reply.createdAt)}</p>
-                    <p>{formatTime(reply.createdAt)}</p>
+                    <p>{formatDate(reply.created_at)}</p>
+                    <p>{formatTime(reply.created_at)}</p>
                 </div>
 
 

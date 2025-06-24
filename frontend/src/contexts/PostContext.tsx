@@ -1,7 +1,7 @@
 'use client'
 import { createContext, useContext, useState } from 'react';
 import { PostContextType } from '@/interface/PostContextType';
-
+import { PostType } from '@/interface/Post';
 import { toast } from "sonner"
 
 
@@ -21,93 +21,174 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
 
 
     // Fetch posts from the API
-    const fetchPosts = async () => {
+    const fetchPosts = async (limit = 20, offset = 0): Promise<PostType[]> => {
         setLoading(true);
         try {
-            // get user token from local storage
+
             const token = localStorage.getItem("access_token");
 
-            // URL matches backend route: GET /posts
-            const response = await fetch(`${API_URL}/posts`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication 
+            // Set limit and offset for pagination
+
+            const response = await fetch(
+                `${API_URL}/socs/api/v1/index/dashboard?limit=${limit}&offset=${offset}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
                 }
-            });
+            );
+
             if (!response.ok) {
                 throw new Error('Failed to fetch posts');
             }
+
             const data = await response.json();
 
-            return data; // Return the fetched posts data
+            // Ensure it's an array before returning
+            return data
 
         } catch (error) {
             console.error('Error fetching posts:', error);
             toast.error('Failed to fetch posts');
+            return []; // Ensure fallback is always an array
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     // Fetch user posts from the API
-    const fetchUserPosts = async () => {
+    const fetchUserPosts = async (limit = 20, offset = 0): Promise<PostType[]> => {
         setLoading(true);
         try {
-            // get user token from local storage
             const token = localStorage.getItem("access_token");
-            // URL matches backend route: GET /posts/user
-            const response = await fetch(`${API_URL}/posts/user`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+
+            const response = await fetch(
+                `${API_URL}/socs/api/v1/index/dashboard/my-posts?limit=${limit}&offset=${offset}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
                 }
-            });
+            );
+
             if (!response.ok) {
-                throw new Error('Failed to fetch user posts');
+                throw new Error('Failed to fetch posts');
             }
+
             const data = await response.json();
 
-            return data; // Return the fetched user posts data
+            // Ensure it's an array before returning
+            return data
 
         } catch (error) {
-            console.error('Error fetching user posts:', error);
-            toast.error('Failed to fetch user posts');
+            console.error('Error fetching posts:', error);
+            toast.error('Failed to fetch posts');
+            return []; // Ensure fallback is always an array
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     // Fetch favorite posts from the API
-    // Note: Backend returns only post IDs, you may need to fetch full post data separately
-    const fetchFavouritePosts = async () => {
+    const fetchFavouritePosts = async (limit = 20, offset = 0): Promise<PostType[]> => {
         setLoading(true);
         try {
-            // get user token from local storage    
             const token = localStorage.getItem("access_token");
-            // URL matches backend route: GET /posts/favourites
-            const response = await fetch(`${API_URL}/posts/favourites`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
+
+            const response = await fetch(
+                `${API_URL}/socs/api/v1/index/dashboard/favorite-posts?limit=${limit}&offset=${offset}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
                 }
-            });
+            );
+
             if (!response.ok) {
-                throw new Error('Failed to fetch favourite posts');
+                throw new Error('Failed to fetch posts');
             }
+
             const data = await response.json();
 
-            return data; // Return the fetched favourite post IDs (not full post data)
+            // Ensure it's an array before returning
+            return data
 
         } catch (error) {
-            console.error('Error fetching favourite posts:', error);
-            toast.error('Failed to fetch favourite posts');
+            console.error('Error fetching posts:', error);
+            toast.error('Failed to fetch posts');
+            return []; // Ensure fallback is always an array
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    // Get comments for a post by post ID
+    const getCommentsForPost = async (postId: string) => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("access_token");
+
+            const response = await fetch(`${API_URL}/socs/api/v1/index/post/comments/${postId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch comments');
+            }
+
+            const data = await response.json();
+            return data; // Array of comments
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            toast.error('Failed to fetch comments');
+            return []; // Fallback
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
+    // Get replies for a comment by comment ID
+    const getRepliesForComment = async (commentId: string) => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("access_token");
+
+            const response = await fetch(`${API_URL}/socs/api/v1/index/post/replies/${commentId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch replies');
+            }
+
+            const data = await response.json();
+            return data; // Array of replies
+        } catch (error) {
+            console.error('Error fetching replies:', error);
+            toast.error('Failed to fetch replies');
+            return []; // Fallback
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     // Legacy alias for backward compatibility
     const fetchFavoritePosts = fetchFavouritePosts;
@@ -125,6 +206,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 'Authorization': `Bearer ${token}`, // Use Bearer token for authentication
             };
 
+            // If an image is provided, use FormData to send both content and image
             if (image) {
                 // Use FormData if there's an image
                 const formData = new FormData();
@@ -138,7 +220,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
                 body = JSON.stringify({ content });
             }
 
-            const response = await fetch(`${API_URL}/posts`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts`, {
                 method: 'POST',
                 headers,
                 body,
@@ -154,6 +236,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Error adding a post:', error);
             toast.error('Failed to add a post.');
+            return null; // Return null on error
         } finally {
             setLoading(false);
         }
@@ -167,7 +250,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: POST /posts/comments
-            const response = await fetch(`${API_URL}/posts/comments`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,7 +285,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: POST /posts/comments/replies
-            const response = await fetch(`${API_URL}/posts/comments/replies`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/comments/replies`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -238,7 +321,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: POST /posts/like
-            const response = await fetch(`${API_URL}/posts/like`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -258,12 +341,13 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
-            toast.success('Post liked!');
+            toast.success('Liked the post!');
             return data; // Return the liked post data
 
         } catch (error) {
             console.error('Error liking a post:', error);
             toast.error('Failed to like a post');
+            return false; // Return false on error
         } finally {
             setLoading(false);
         }
@@ -277,7 +361,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: POST /posts/favourite
-            const response = await fetch(`${API_URL}/posts/favourite`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favourite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -297,7 +381,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
-            toast.success('Post favourited!');
+            toast.success('Added post to favourites!');
             return data; // Return the favourited post data
 
         } catch (error) {
@@ -319,7 +403,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: DELETE /posts/like
-            const response = await fetch(`${API_URL}/posts/like`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/like`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -334,12 +418,13 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
-            toast.success('Post unliked!');
+            toast.success('Unliked the post!');
             return data; // Return the unliked post data
 
         } catch (error) {
             console.error('Error deleting a like from a post:', error);
             toast.error('Failed to delete a like from a post');
+            return false
         } finally {
             setLoading(false);
         }
@@ -353,7 +438,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             const token = localStorage.getItem("access_token");
 
             // URL matches backend route: DELETE /posts/favourite
-            const response = await fetch(`${API_URL}/posts/favourite`, {
+            const response = await fetch(`${API_URL}/socs/api/v1/index/posts/favourite`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -368,7 +453,7 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
             }
             const data = await response.json();
 
-            toast.success('Post unfavourited!');
+            toast.success('Removed post from favourites!');
             return data; // Return the unfavourited post data
 
         } catch (error) {
@@ -389,6 +474,8 @@ export function PostProvider({ children }: { children: React.ReactNode }) {
         fetchUserPosts,
         fetchFavouritePosts,
         fetchFavoritePosts, // Legacy alias
+        getCommentsForPost,
+        getRepliesForComment,
         addPost,
         addComment,
         addReply,

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description: "Socs social media app",
 };
 
-// This is home page of the dashboard where you r
+// This is Home feed of the dashboard where you r
 export default function page() {
     return (
         <FeedComponent />

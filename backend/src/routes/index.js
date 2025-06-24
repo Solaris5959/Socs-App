@@ -23,11 +23,14 @@ import {
   like_post,
   favourite_post,
   unlike_post,
-  unfavourite_post
+  unfavourite_post,
+  query_comments_by_postid,
+  query_replies_by_commentid
 } from './posts.js';
 
 import {
   query_connections,
+  query_potential_connections,
   new_connection,
   delete_connection,
   query_connection_requests,
@@ -46,7 +49,7 @@ import {
 //front end calls "http://localhost:8080/socs/api/v1/test_auth
 router.get('/test_auth', test); //sample route to follow
 
-// dashboard routes 
+// dashboard routes - Get post information for the dashboard 
 router.get('/dashboard', get_basic_dashboard); //for GET dashboard/calls /socs/api/v1/index/dashboard
 router.get('/dashboard/my-posts', get_user_dashboard); //for GET dashboard/user-posts/calls /socs/api/v1/index/dashboard/user-posts
 router.get('/dashboard/favorite-posts', get_favorite_dashboard); //for GET dashboard/favorite-posts/calls /socs/api/v1/index/dashboard/favorite-posts
@@ -64,6 +67,9 @@ router.delete('/profile', delete_acc) // DEL for deleting user profile
 router.get('/posts', query_posts);
 router.get('/posts/user', query_user_posts);
 router.get('/posts/favourites', query_favourite_posts);
+// * Added: Get comments and repli by postid
+router.get('/post/comments/:id', query_comments_by_postid);
+router.get('/post/replies/:id', query_replies_by_commentid);
 
 // POST
 router.post('/posts', upload.single('image'), create_post); // for text + optional image
@@ -85,12 +91,12 @@ router.delete('/chat/:id/message/:messageID', delete_msg) // where id is recieve
 
 // Connections/Follows + Connection Requests
 router.get('/connections', query_connections) //GET all connections for user
-router.post('/connections', new_connection) //POST to create a new connection
+router.get('/suggest-connections', query_potential_connections) // * Added:GET potential connections for user
 router.delete('/connections/:id', delete_connection) //DELETE a connection by id
-router.get('/connections/requests', query_connection_requests) //GET all connection requests for user
-router.post('/connections/requests', new_connection_request) //POST to create a new connection request
-router.delete('/connections/requests/:id', delete_connection_request) //DELETE a connection request by id
-
+router.get('/connections/requests', query_connection_requests) //GET all connection requests for user - Get connection requests
+router.post('/connections/requests', new_connection_request) //POST to create a new connection request - Send connection request
+router.post('/connections/requests/:id', new_connection) //POST to create a new connection - Accept connection request
+router.delete('/connections/requests/:id', delete_connection_request) //DELETE a connection request by id - Cancel connection request
 router.get('/connections/followers', query_followers) //GET all followers for user
 router.get('/connections/following', query_following) //GET all following for user
 router.post('/connections/follow', new_follow) //POST to follow a user

@@ -1,6 +1,5 @@
 //File can include multiple methods just name it in index
 import logger from '../logger.js'; //include to use logger 
-import supabase from '../lib/supabaseClient.js';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -37,6 +36,7 @@ export async function query_acc(req, res) {
 }
 
 // Method to handle avatar upload for a new profile picture
+
 export async function upload_avatar(req, res) {
   logger.debug("in POST profile avatar, authenticated users only");
 
@@ -127,7 +127,7 @@ export async function update_acc(req, res) { //the method
 
 
     // Update the user profile in the database
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .update(req.body) // update fields from request body from frontend
       .eq('user_id', req.user.id)
@@ -150,7 +150,7 @@ export async function update_acc(req, res) { //the method
   }
 }
 
-// Todo: Implement the following methods
+// Delete user profile method
 export async function delete_acc(req, res) { //the method 
   logger.debug("in DEL profile, authenticated users only")
   try {
@@ -178,7 +178,7 @@ export async function delete_acc(req, res) { //the method
   }
 }
 
-//////////////  Helper functions //////////
+
 
 // Function to delete old avatar if it exists
 async function deleteOldAvatar(existingProfile) {
