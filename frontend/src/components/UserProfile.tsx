@@ -38,8 +38,8 @@ export function UserProfile({
   const { userProfile, updateUserProfile, uploadProfilePicture, deleteUserAccount } = useProfile();
 
   const [errors, setErrors] = useState<{
-      displayName?: string
-    }>({})
+    displayName?: string
+  }>({})
 
   // Todo: Add skeleton loading state for user profile data and handle loading state
 
@@ -80,8 +80,8 @@ export function UserProfile({
 
     const newErrors: typeof errors = {}
 
-    
-    
+
+
     // Display name validation
     if (!userDisplayName) {
       newErrors.displayName = "Display name is required"
@@ -127,9 +127,6 @@ export function UserProfile({
     return success
 
   }
-
-
-
 
   return (
     <div className={cn("flex items-center justify-center px-4 py-8", className)} {...props}>
@@ -206,7 +203,7 @@ export function UserProfile({
                 <label htmlFor="display_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Display Name
                 </label>
-                <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name || "N/A"} disabled={!isEditing} className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+                <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name} disabled={!isEditing} className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
         ${errors.displayName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`} />
                 {errors.displayName && <p className="text-sm text-red-500">{errors.displayName}</p>}
               </div>

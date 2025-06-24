@@ -125,13 +125,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 
+
     // Method to sign out the user
     const signOut = async () => {
-        localStorage.removeItem("access_token");
-        toast.success("Signed out successfully.");
-        router.push("/");
-    };
+        try {
+            const token = localStorage.getItem("access_token");
+            console.log("Token:", token);
 
+            const response = await fetch(`${API_URL}/socs/api/v1/user/logout`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log("Response:", response);
+            localStorage.removeItem("access_token");
+
+            if (!response.ok) {
+                toast.error("Sign out failed. Please try again.");
+                return false;
+            }
+
+            toast.success("Signed out successfully.");
+            return true;
+
+        } catch (error) {
+            toast.error("Sign out failed. Please try again.");
+            console.error("Error signing out user", error);
+            return false;
+        }
+    };
 
 
     // Method to reset password

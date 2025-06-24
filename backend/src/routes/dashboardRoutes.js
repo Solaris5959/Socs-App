@@ -13,13 +13,20 @@ export async function get_basic_dashboard(req, res) {
     const limit = parseInt(req.query.limit, 10) || 20;
     const offset = parseInt(req.query.offset, 10) || 0;
 
+    console.log("limit:", limit, "offset:", offset);
+
     logger.debug(`Fetching dashboard posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
 
+    // Call the Supabase RPC to get the base dashboard
+    // Get posts someone I followed and connected.
     const { data, error } = await supabase
-      .rpc('get_base_dashboard', {
+      .rpc('get_base_dashboard_v3', {
+        p_user_id: req.user.id,
         limit_num: limit,
         offset_num: offset,
       });
+
+    logger.debug("Raw Supabase RPC response:", { data, error });
 
     if (error) {
       logger.error({ error }, 'Error fetching base dashboard:');
@@ -50,7 +57,8 @@ export async function get_user_dashboard(req, res) {
 
     // Call the Supabase RPC
     const { data, error } = await supabase
-      .rpc('get_my_posts', {
+      .rpc('get_my_posts_v2', {
+        p_user_id: req.user.id,
         limit_num: limit,
         offset_num: offset
       });
@@ -81,13 +89,14 @@ export async function get_favorite_dashboard(req, res) {
     logger.debug(`Fetching favorited posts for user ${req.user.id} with limit ${limit} and offset ${offset}`);
 
     const { data, error } = await supabase
-      .rpc('get_favourites_dashboard', {
+      .rpc('get_favourites_dashboard_v2', {
+        p_user_id: req.user.id,
         limit_num: limit,
         offset_num: offset,
       });
 
     if (error) {
-      logger.error({error}, 'Error fetching favorites dashboard:');
+      logger.error({ error }, 'Error fetching favorites dashboard:');
       return res.status(500).json({ error: 'Failed to fetch posts' });
     }
 

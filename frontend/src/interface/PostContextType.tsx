@@ -1,19 +1,21 @@
 
-
+import { PostType, ReplyType, CommentType } from "./Post";
 // Define the context type
 export interface PostContextType {
 
     // Methods to manage posts
-    fetchPosts: () => Promise<void>   // API: GET /socs/api/v1/index/posts 
-    fetchUserPosts: () => Promise<void> // API: GET /socs/api/v1/index/posts/user 
-    fetchFavoritePosts: () => Promise<void>  // API: GET /socs/api/v1/index/posts/favorites 
-    addPost: (content: string, image?: File) => Promise<void> // API: POST /socs/api/v1/index/posts 
-    addComment: (postId: string, content: string) => Promise<void> // API: POST /socs/api/v1/index/posts/comments 
-    addReply: (postId: string, commentId: string, content: string) => Promise<void> // API: POST /socs/api/v1/index/posts/comments/replies
-    likePost: (postId: string) => Promise<void> // API: POST /socs/api/v1/index/posts/like
-    favoritePost: (postId: string) => Promise<void> // API: POST /socs/api/v1/index/posts/favorite
-    unlikePost: (postId: string) => Promise<void> // API: DELETE /socs/api/v1/index/posts/like
-    unfavoritePost: (postId: string) => Promise<void> // API: DELETE /socs/api/v1/index/posts/favorite
+    fetchPosts: (limit?: number, offset?: number) => Promise<PostType[]>
+    fetchUserPosts: (limit?: number, offset?: number) => Promise<PostType[]>
+    fetchFavoritePosts: (limit?: number, offset?: number) => Promise<PostType[]>
+    getCommentsForPost: (postId: string) => Promise<CommentType[]>
+    getRepliesForComment: (commentId: string) => Promise<ReplyType[]>
+    addPost: (content: string, image?: File) => Promise<void>
+    addComment: (postId: string, content: string) => Promise<void>
+    addReply: (commentId: string, content: string) => Promise<void>
+    likePost: (postId: string) => Promise<void>
+    favoritePost: (postId: string) => Promise<void>
+    unlikePost: (postId: string) => Promise<void>
+    unfavoritePost: (postId: string) => Promise<void>
 
 
 }
