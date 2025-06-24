@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from "@/contexts/AuthContext";
 import RouteGuard from "./RouteGuard";
 
+
 // Root layout for the application
 export default function RootLayout({
   children,

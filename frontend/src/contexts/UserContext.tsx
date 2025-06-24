@@ -44,7 +44,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 const data = await response.json();
 
                 // Log to see the fetched data
-                console.log('User profile fetched:', data);
+                //console.log('User profile fetched:', data);
                 setUserProfile(data);
 
 

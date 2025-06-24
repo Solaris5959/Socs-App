@@ -1,5 +1,5 @@
-import logger from '../logger.js'; 
-import supabase from '../lib/supabaseClient.js'; 
+import logger from '../logger.js';
+import supabase from '../lib/supabaseClient.js';
 import supabaseAdmin from '../lib/supabaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -129,6 +129,164 @@ export async function query_favourite_posts(req, res) {
   }
 }
 
+
+// *Added: Method to get comments by post ID
+export async function query_comments_by_postid(req, res) {
+  logger.debug("Authenticated user " + req.user);
+  logger.debug("in GET comments by post ID, authenticated users only");
+
+  try {
+    // Authentication check
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const postId = req.params.id;
+
+    // Validate post ID
+    if (!postId) {
+      return res.status(400).json({ error: 'Post ID is required' });
+    }
+
+    logger.debug("Fetching comments for post ID:" + postId);
+
+    // Get all comments for the specified post
+    const { data: comments, error } = await supabaseAdmin
+      .from('comments')
+      .select('*')
+      .eq('post_id', postId);
+
+    if (error) {
+      logger.debug('Error fetching comments: ' + JSON.stringify(error));
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    // Extract unique author IDs
+    const authorsId = [...new Set(comments.map(comment => comment.author_id))];
+
+    const { data: userDetails, error: userError } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position, profile_pic_url, is_online")
+      .in("user_id", authorsId);
+
+    if (userError) {
+      logger.debug('Error fetching user details: ' + JSON.stringify(userError));
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    // Count replies for each comment
+    const replyCounts = await Promise.all(
+      comments.map(async (comment) => {
+        const { count, error: countError } = await supabaseAdmin
+          .from('comment_replies')
+          .select('id', { count: 'exact', head: true }) // Use head: true for count only
+          .eq('comment_id', comment.id);
+
+        if (countError) {
+          logger.debug(`Error counting replies for comment ${comment.id}: ` + JSON.stringify(countError));
+          return { commentId: comment.id, count: 0 };
+        }
+
+        return { commentId: comment.id, count };
+      })
+    );
+
+    // Construct final enriched comments
+    const data = comments.map(comment => {
+      const author = userDetails.find(user => user.user_id === comment.author_id);
+      const replyCount = replyCounts.find(rc => rc.commentId === comment.id)?.count || 0;
+
+      return {
+        ...comment,
+        display_name: author?.display_name,
+        company: author?.company,
+        position: author?.position,
+        profile_pic_url: author?.profile_pic_url,
+        is_online: author?.is_online,
+        replies_count: replyCount
+      };
+    });
+
+    logger.debug("Final enriched comments: " + JSON.stringify(data));
+    return res.status(200).json(data);
+
+  } catch (error) {
+    logger.debug('Unexpected error: ' + error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+// *Added: Method to get replies by comment ID
+export async function query_replies_by_commentid(req, res) {
+  logger.debug("Authenticated user " + req.user);
+  logger.debug("in GET replies by comment ID, authenticated users only");
+
+  try {
+    // Authentication check
+    if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const commentId = req.params.id;
+
+    // Validate comment ID
+    if (!commentId) {
+      return res.status(400).json({ error: 'Comment ID is required' });
+    }
+
+    logger.debug("Fetching replies for comment ID: " + commentId);
+
+    // Fetch replies
+    const { data: replies, error: repliesError } = await supabaseAdmin
+      .from('comment_replies')
+      .select('*')
+      .eq('comment_id', commentId);
+
+    if (repliesError) {
+      logger.debug('Error fetching replies: ' + JSON.stringify(repliesError));
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    if (!replies || replies.length === 0) {
+      return res.status(200).json([]); // No replies — return empty array
+    }
+
+    // Extract unique author IDs
+    const authorsId = [...new Set(replies.map(reply => reply.author_id))];
+
+    // Fetch user profile details
+    const { data: userDetails, error: userError } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position, profile_pic_url, is_online")
+      .in("user_id", authorsId);
+
+    if (userError) {
+      logger.debug('Error fetching user details: ' + JSON.stringify(userError));
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    // Merge reply with user profile
+    const enrichedReplies = replies.map(reply => {
+      const author = userDetails.find(user => user.user_id === reply.author_id);
+      return {
+        ...reply,
+        display_name: author?.display_name || null,
+        company: author?.company || null,
+        position: author?.position || null,
+        profile_pic_url: author?.profile_pic_url || null,
+        is_online: author?.is_online ?? false,
+      };
+    });
+
+    logger.debug("Enriched replies: " + JSON.stringify(enrichedReplies));
+
+    return res.status(200).json(enrichedReplies);
+
+  } catch (error) {
+    logger.debug('Unexpected error: ' + error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 /**
  * POST /posts - Creates a new post with optional image upload
  * Handles both text-only posts and posts with media attachments
@@ -137,6 +295,9 @@ export async function query_favourite_posts(req, res) {
  * @param {Response} res - Express response object
  * @returns {Object} JSON of created post or error message
  */
+
+// Method to create a new post
+// * Already Fixed upload logic to handle file uploads correctly
 export async function create_post(req, res) {
   logger.debug("Authenticated user " + req.user);
   logger.debug("in POST create post, authenticated users only");
@@ -161,19 +322,28 @@ export async function create_post(req, res) {
     // Handle optional image upload to Supabase Storage
     if (image) {
       // Create unique filename to prevent conflicts
-      const filename = `posts/${uuidv4()}-${image.originalname}`;
-      
+      const path = `${req.user.id}/${uuidv4()}`;
+
       // Upload image to Supabase Storage bucket
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
         .from('media-posts') // Storage bucket name
-        .upload(filename, image.buffer, { contentType: image.mimetype });
+        .upload(path, image.buffer, {
+          contentType: image.mimetype
+          , upsert: true
+        });
+
+
+      logger.debug("Upload new post image: " + JSON.stringify(uploadData));
 
       // Handle upload failures
       if (uploadError) return res.status(500).json({ error: 'Image upload failed' });
 
       // Get public URL for the uploaded image
-      const { data: publicUrl } = supabase.storage.from('media-posts').getPublicUrl(filename);
+      const { data: publicUrl } = supabase.storage.from('media-posts').getPublicUrl(path);
       imageUrl = publicUrl.publicUrl;
+
+      console.log("Image URL: " + imageUrl);
+
     }
 
     // Insert new post into database
@@ -462,7 +632,7 @@ export async function unlike_post(req, res) {
     }
 
     // Return success message (no data needed for deletion)
-   return res.status(200).json({ message: 'Post unliked' });
+    return res.status(200).json({ message: 'Post unliked' });
   } catch (error) {
     logger.debug('Unexpected error: ' + error);
     return res.status(500).json({ error: 'Internal Server Error' });

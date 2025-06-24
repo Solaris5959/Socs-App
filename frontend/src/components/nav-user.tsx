@@ -7,6 +7,7 @@ import {
   Bell,
   ChevronsUpDown,
   LogOut,
+  Link,
 } from "lucide-react"
 
 import {
@@ -64,6 +65,8 @@ export function NavUser({
   // Function to handle sign out
   const handleSignOut = async () => {
     try {
+
+      // Call the signOut function from AuthContext
       await signOut();
       // Redirect to the login page or perform any other action after sign out
       router.push("/");
@@ -132,12 +135,12 @@ export function NavUser({
               </a>
 
               {/* Chat Page*/}
-              <a href="/dashboard/chats" >
+              <Link href="/dashboard/chats" >
                 <DropdownMenuItem className="cursor-pointer" >
                   <MessageCircleMore />
                   Chats
                 </DropdownMenuItem>
-              </a>
+              </Link>
 
               {/* Notifications Page whrere user get reuqest*/}
               <DropdownMenuItem>

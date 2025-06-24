@@ -53,15 +53,24 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
+        // Validate email format
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
+
         if (error || !data.session) {
             logger.debug("Login Error:" + error?.message || 'No session returned');
             return res.status(401).json({ message: error?.message || 'Invalid credentials' });
         }
+
+        // Log the user in successfully update 
+        await supabase
+            .from("user_profiles")
+            .update({ is_online: true })
+            .eq("user_id", data.user.id); // Replace with your user ID key
+
 
         // Send access token + basic session info to client
         res.status(200).json({
@@ -71,6 +80,41 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         logger.error("Internal server error: " + err);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+// POST /users/logout to track user status
+router.post('/logout', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split("Bearer ")[1];
+
+        if (!token) {
+            return res.status(401).json({ message: 'Missing access token' });
+        }
+
+        // Get the user from the token
+        const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+        if (userError || !user) {
+            return res.status(401).json({ message: 'Invalid or expired token' });
+        }
+
+        // Update online status to offline
+        const { error: updateError } = await supabase
+            .from("user_profiles")
+            .update({ is_online: false }) //offline status
+            .eq("user_id", user.id);
+
+        if (updateError) {
+            return res.status(500).json({ message: 'Failed to update online status' });
+        }
+
+        return res.status(200).json({ message: 'User logged out successfully' });
+
+    } catch (err) {
+        logger.error("Logout error:", err);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 });
 
