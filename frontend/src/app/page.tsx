@@ -31,8 +31,8 @@ export default function Page() {
 
 
         {/* Main content */}
-        <main className="flex-grow flex items-center justify-center px-4">
-          <section className="w-full max-w-2xl">
+        <main className="flex items-center justify-center flex-grow px-4">
+          <section className="w-full max-w-lg">
             <LoginForm />
           </section>
         </main>

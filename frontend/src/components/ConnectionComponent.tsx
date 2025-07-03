@@ -62,8 +62,6 @@ export default function MyConnections() {
     };
 
 
-
-
     // Use effect to fetch connections when the component mounts
     useEffect(() => {
         // Fetch connections when the component mounts
@@ -89,7 +87,7 @@ export default function MyConnections() {
         getSuggestedConnections();
         getConnectionRequests();
 
-    }, [fetchUserConnections, fetchSuggestConnections, fetchConnectionRequests]);
+    }, []);
 
 
     // console.log("Connections:", connections);

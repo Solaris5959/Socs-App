@@ -74,7 +74,7 @@ export function LoginForm({
   return (
 
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="p-10 rounded-3xl bg-white dark:bg-slate-900 shadow-lg">
+      <Card className="py-8 bg-white shadow-lg rounded-3xl dark:bg-slate-900">
 
         {/* Card header with logo and title */}
         <CardHeader>
@@ -82,12 +82,12 @@ export function LoginForm({
             <Image
               src={logoImage}
               alt="Logo"
-              className="h-54 w-auto"
+              className="w-auto h-54"
             />
           </div>
 
-          <CardTitle className="sm:text-2xl text-xl text-center">Login to your account</CardTitle>
-          <CardDescription className="sm:text-md text-sm text-center text-slate-400">
+          <CardTitle className="text-xl text-center sm:text-2xl">Login to your account</CardTitle>
+          <CardDescription className="text-sm text-center sm:text-md text-slate-400">
             Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
@@ -96,7 +96,7 @@ export function LoginForm({
         {/* Card content with form */}
         <CardContent>
           <form onSubmit={handleSubmit} >
-            <div className="flex flex-col gap-6 sm:w-1/2 w-full mx-auto">
+            <div className="flex flex-col w-full gap-6 mx-auto sm:w-1/2">
               <div className="grid gap-3">
                 {/* Email input */}
                 <Input
@@ -131,26 +131,25 @@ export function LoginForm({
               <div className="flex flex-col gap-3">
                 <Button
                   type="submit"
-                  className="w-full rounded-xl bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                  className="w-full bg-blue-500 cursor-pointer rounded-xl hover:bg-blue-600"
                 >
                   Login
                 </Button>
               </div>
 
             </div>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-4 text-sm text-center">
 
 
             </div>
 
 
             {/* Forgot pw and Signup link */}
-            <div className="flex flex-col items-center text-center text-sm space-y-2 text-gray-600 dark:text-gray-400">
+            <div className="flex flex-col items-center space-y-2 text-sm text-center text-gray-600 dark:text-gray-400">
               <div>
                 <Link
                   href="/forgot-password"
-                  className="text-blue-500 hover:underline 
-                  hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                  className="text-blue-500 transition-colors hover:underline hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   Forgot password?
                 </Link>
@@ -160,8 +159,7 @@ export function LoginForm({
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/signup"
-                  className="text-blue-500 hover:underline hover:text-blue-700 
-                  dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                  className="text-blue-500 transition-colors hover:underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   Create an account
                 </Link>
