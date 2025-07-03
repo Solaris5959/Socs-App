@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+//import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -31,8 +31,8 @@ const mockMessages: Message[] = [
 ]
 
 export default function ChatComponent() {
-    const params = useParams()
-    const chatId = params.chatId as string
+    // const params = useParams()
+    //const chatId = params.chatId as string
     const [messages] = useState<Message[]>(mockMessages)
     const [newMessage, setNewMessage] = useState('')
 

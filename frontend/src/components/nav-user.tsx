@@ -7,7 +7,6 @@ import {
   Bell,
   ChevronsUpDown,
   LogOut,
-  Link,
 } from "lucide-react"
 
 import {
