@@ -1,9 +1,10 @@
-import React from 'react'
 
-export default function page() {
-    return (
-        <div className="flex flex-row items-center justify-center">
-            <h1 className='m-2 text-2xl text-center'>List of connection</h1>
-        </div>
-    )
+
+import { redirect } from 'next/navigation'
+// This is a main page of chats section of the dashboard
+// Todo: You need to fetch 1st chatId to navigate to the chat page
+
+// This the main component to display the chat page
+export default function ChatPage() {
+    redirect('chats/1')
 }
