@@ -1,41 +1,60 @@
 'use client'
 
-//import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-interface Message {
-    id: string
-    text: string
-    sender: 'user' | 'other'
-    timestamp: string
-    avatar?: string
-    name?: string
-}
+import { messagesWithBessie, messagesWithAlex, messagesWithEthan } from '@/assets/sample-chats';
+import { Message } from '@/interface/Message';
+import mockChatHistoryInfo from '@/assets/sample-chats-history';
 
-const mockMessages: Message[] = [
-    {
-        id: '1',
-        text: "Hi, Michael. I'm facing some challenges in optimizing my code for performance. Can you help?",
-        sender: 'other',
-        timestamp: '10:45 AM',
-        avatar: 'https://ui-avatars.com/api/?name=Bessie+Cooper&background=random',
-        name: 'Bessie'
-    },
-    {
-        id: '2',
-        text: "Hi, Bessie! 👋 I'd be glad to help you with optimizing your code for better performance. To get started, could you provide me with some more details about the specific challenges you're facing?",
-        sender: 'user',
-        timestamp: '10:53 AM'
-    }
-]
 
+
+// This is the main component to display the chat page
 export default function ChatComponent() {
-    // const params = useParams()
-    //const chatId = params.chatId as string
-    const [messages] = useState<Message[]>(mockMessages)
-    const [newMessage, setNewMessage] = useState('')
 
+    // Get the chatId from the URL parameters
+    const params = useParams()
+    const userId = params.chatId as string // use userId
+
+    console.log('ChatComponent userId:', userId)
+
+    const [messages, setMessages] = useState<Message[]>([])
+
+    // For input message state
+    const [newMessage, setNewMessage] = useState([])
+
+    // Todo: Get header information from the chat history by userId
+    // For now, we will use the mock data
+    const chatHistory = mockChatHistoryInfo.find(chat => chat.user_id === userId)
+    console.log('ChatComponent chatHistory:', chatHistory)
+
+
+
+    // Use effect to fetch messages based on chatId
+    useEffect(() => {
+        // Here you would typically fetch messages from an API based on chatId
+        // For now, we will use the mock data
+        // Example: fetchMessages(chatId)
+        // Todo: Fetch the chat based on userId
+
+        // Mockup front-end: Validate userId and fetch messages accordingly
+        if (userId === '0481d6cc-d641-4597') {
+            setMessages(messagesWithBessie)
+        } else if (userId === '0481d6cc-asdt-14524') {
+            setMessages(messagesWithAlex)
+        } else if (userId === '0481d6cc-dasd-t12fs') {
+            setMessages(messagesWithEthan)
+        } else {
+            // Handle case where userId does not match any known chat
+            console.warn(`No messages found for userId: ${userId}`)
+            setMessages([]) // Clear messages if no match found
+
+        }
+    }, [userId])
+
+
+    /// Handle an input for post request
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
         // Handle sending message logic here
@@ -47,18 +66,19 @@ export default function ChatComponent() {
             {/* Chat Header */}
             <div className="px-6 py-4 border-b border-gray-200 bg-white rounded-t-xl">
                 <div className="flex items-center gap-3">
+                    {/* use chathistory to display the header */}
                     <div className="relative w-10 h-10">
                         <Avatar className="w-12 h-12">
-                            <AvatarImage src="https://ui-avatars.com/api/?name=Bessie+Cooper&background=random"
-                                alt="Bessie Cooper" />
+                            <AvatarImage src={chatHistory?.avatar_URL || ''}
+                                alt={chatHistory?.name} />
                             <AvatarFallback className="text-gray-700 bg-gray-300">
                                 SO
                             </AvatarFallback>
                         </Avatar>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-gray-900">Bessie Cooper</h3>
-                        <p className="text-xs text-gray-500">Marketing Manager</p>
+                        <h3 className="font-semibold text-gray-900">{chatHistory?.name}</h3>
+                        <p className="text-xs text-gray-500">{chatHistory?.poistion || ''}</p>
                     </div>
                     <span className="ml-auto text-xs text-green-500 flex items-center gap-1">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -68,7 +88,7 @@ export default function ChatComponent() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 0">
                 {messages.map((message) => (
                     <div
                         key={message.id}
@@ -77,8 +97,6 @@ export default function ChatComponent() {
                         <div className={`flex gap-3 max-w-xs lg:max-w-md ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}>
                             {message.sender === 'other' && (
                                 <div className="relative w-8 h-8 flex-shrink-0">
-
-
                                     <Avatar className="w-12 h-12">
                                         <AvatarImage src={message.avatar || ''}
                                             alt={message.name || ''} />
@@ -89,9 +107,7 @@ export default function ChatComponent() {
                                 </div>
                             )}
                             <div>
-                                {message.sender === 'other' && (
-                                    <p className="text-xs font-medium text-gray-700 mb-1">{message.name}</p>
-                                )}
+
                                 <div
                                     className={`rounded-lg px-4 py-2 ${message.sender === 'user'
                                         ? 'bg-blue-500 text-white'
@@ -117,7 +133,8 @@ export default function ChatComponent() {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none 
+                        focus:ring-2 focus:ring-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <button
                         type="submit"
