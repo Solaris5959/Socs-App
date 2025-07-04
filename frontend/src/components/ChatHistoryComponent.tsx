@@ -1,31 +1,11 @@
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link'
+import { formatDistanceToNow } from 'date-fns'
+import mockChatHistory from '@/assets/sample-chats-history';
 
 // Mock chat history data
-const mockChatHistory = [
-    {
-        id: '1',
-        name: 'Bessie Cooper',
-        lastMessage: 'Hi, Michael. I am doing well, thanks for asking!',
-        avatar: 'https://ui-avatars.com/api/?name=Bessie+Cooper&background=random',
-        time: '2 min ago'
-    },
-    {
-        id: '2',
-        name: 'Ethan Martinez',
-        lastMessage: 'Not much, just planning to relax...',
-        avatar: 'https://ui-avatars.com/api/?name=Ethan+Martinez&background=random',
-        time: '15 min ago'
-    },
-    {
-        id: '3',
-        name: 'Alex Carter',
-        lastMessage: 'Hey, did you finish the report?',
-        avatar: 'https://ui-avatars.com/api/?name=Alex+Carter&background=random',
-        time: '1 hour ago'
-    }
-]
+// current user id: asdff-5555-6666
 
 export default function ChatHistoryComponent() {
     return (
@@ -35,9 +15,11 @@ export default function ChatHistoryComponent() {
             </div>
             <div className="space-y-2">
                 {mockChatHistory.map((chat) => (
-                    <Link href={`/dashboard/chats/${chat.id}`} key={chat.id}>
-                        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors">
-                            <div className="relative w-10 h-10">
+                    // Link to the chat page with user_id
+                    <Link href={`/dashboard/chats/${chat.user_id}`} key={chat.user_id}>
+                        <div className="flex items-center gap-3 p-2 rounded-lg
+                         hover:bg-gray-200 cursor-pointer transition-colors">
+                            <div className="relative ">
                                 <Avatar className="w-12 h-12">
                                     <AvatarImage src={chat.avatar || 'empty'} alt={chat.name} />
                                     <AvatarFallback className="text-gray-700 bg-gray-300">
@@ -49,7 +31,9 @@ export default function ChatHistoryComponent() {
                                 <h3 className="font-medium text-sm text-gray-900">{chat.name}</h3>
                                 <p className="text-xs text-gray-500 truncate">{chat.lastMessage}</p>
                             </div>
-                            <span className="text-xs text-gray-400">{chat.time}</span>
+                            <span className="text-xs text-gray-400">
+                                {formatDistanceToNow(new Date(chat.time), { addSuffix: true })}
+                            </span>
                         </div>
                     </Link>
                 ))}
