@@ -14,30 +14,31 @@ export async function query_chat(req, res) { //the method
         .rpc('get_recent_messages', { user_id: req.user.id });
         
         
-    for (const msg of data) {
-        // Capture the receiver or sender of a message that is not the current user
-        let userIdToFetch = null;
+        for (const msg of data) {
+            // Capture the receiver or sender of a message that is not the current user
+            let userIdToFetch = null;
 
-        if (msg.receiver_id !== req.user.id) {
-            userIdToFetch = msg.receiver_id;
-        } else if (msg.sender_id !== req.user.id) {
-            userIdToFetch = msg.sender_id;
-        }
-
-        if (userIdToFetch) {
-            const { data: profile_data, error: profileError } = await supabase
-                .from('user_profiles')
-                .select('display_name, company, position, profile_pic_url')
-                .eq('user_id', userIdToFetch)
-                .single();
-
-            if (profileError) {
-                logger.error('Error fetching profile data:', profileError);
-                continue; 
+            if (msg.receiver_id !== req.user.id) {
+                userIdToFetch = msg.receiver_id;
+            } else if (msg.sender_id !== req.user.id) {
+                userIdToFetch = msg.sender_id;
             }
-            msg.profile_data = profile_data;
+
+            if (userIdToFetch) {
+                const { data: profile_data, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('display_name, company, position, profile_pic_url')
+                    .eq('user_id', userIdToFetch)
+                    .single();
+
+                if (profileError) {
+                    logger.error('Error fetching profile data:', profileError);
+                    continue; 
+                }
+                msg.profile_data = profile_data;
+            }
         }
-    }
+        logger.debug(error)
         res.status(200).json(data);
 
     } catch (error) {
@@ -63,7 +64,7 @@ export async function read_msg(req, res) { //the method
             .filter('receiver_id','in',`(${req.params['id']},${req.user.id})`)
             .filter('sender_id','in',`(${req.params['id']},${req.user.id})`)
             .order('sent_at', { ascending: false });
-        logger.debug(data);
+        logger.debug(error)
         res.status(200).json(data);
 
     } catch (error) {
@@ -87,7 +88,7 @@ export async function new_msg(req, res) { //the method
         .insert(req.body)
         .select('receiver_id,  content')
         .single()
-        
+        logger.debug(error)
         res.status(200).json(data);
 
     } catch (error) {
@@ -110,7 +111,7 @@ export async function update_msg(req, res) { //the method
         .match({ sender_id: req.user.id, id: req.params['messageID'] })
         .select('*')
         .single()
-
+        logger.debug(error)
         res.status(200).json(data);
 
     } catch (error) {
@@ -133,7 +134,7 @@ export async function delete_msg(req, res) { //the method
         .match({ sender_id: req.user.id, id: req.params['messageID'] });
 
         res.status(204).json(data);
-
+        logger.debug(error)
     } catch (error) {
         // Handle any unexpected errors
         logger.debug('Error fetching user profile:', error);
