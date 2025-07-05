@@ -83,11 +83,11 @@ router.delete('/posts/like', unlike_post);
 router.delete('/posts/favourite', unfavourite_post);
 
 //Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
-router.get('/chat', query_chat) //return all chats for user 
-router.get('/chat/:id', read_msg), //return all msgs with id
-  router.post('/chat/:id', new_msg) //send a new message to id
-router.put('/chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
-router.delete('/chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
+router.get('/chat', query_chat) //return all chats for user RECIEVED
+router.get('/chat/:id', read_msg), //return all msgs from current user with other user
+router.post('/chat', new_msg) //send a new message to id 
+router.put('/chat/:messageID', update_msg) // messageID is the exact message to be updated, time stamp also updated on success 
+router.delete('/chat/:messageID', delete_msg) //messageID is the exact message to be deleted 
 
 // Connections/Follows + Connection Requests
 router.get('/connections', query_connections) //GET all connections for user
