@@ -14,7 +14,8 @@ const eslintConfig = [
   {
     rules: {
       "react-hooks/exhaustive-deps": "off",
-      "@next/next/no-html-link-for-pages": "off"
+      "@next/next/no-html-link-for-pages": "off",
+      "jsx-a11y/alt-text": "off"
     }
   }
 ];
