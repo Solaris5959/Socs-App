@@ -17,7 +17,6 @@ export default function ChatComponent() {
     const params = useParams()
     const userId = params.chatId as string // use userId
 
-    console.log('ChatComponent userId:', userId)
 
     const [messages, setMessages] = useState<Message[]>([])
 
@@ -36,9 +35,9 @@ export default function ChatComponent() {
         // Here you would typically fetch messages from an API based on chatId
         // For now, we will use the mock data
         // Example: fetchMessages(chatId)
-        // Todo: Fetch the chat based on userId
+        // Todo: Fetch the chat based on userId from URL with a method in ChatContext
 
-        // Mockup front-end: Validate userId and fetch messages accordingly
+        // ! Temporary for Mockup front-end: Validate userId and fetch messages accordingly
         if (userId === '0481d6cc-d641-4597') {
             setMessages(messagesWithBessie)
         } else if (userId === '0481d6cc-asdt-14524') {
@@ -59,6 +58,8 @@ export default function ChatComponent() {
         e.preventDefault()
         // Handle sending message logic here
         setNewMessage('')
+
+        // Todo: Send the message to the server with a method in ChatContext
     }
 
     return (
