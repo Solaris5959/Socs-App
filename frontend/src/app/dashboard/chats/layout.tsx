@@ -2,6 +2,7 @@
 import ChatHistoryComponent from "@/components/ChatHistoryComponent"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+
     return (
         <div className=" mx-auto">
             <div className="flex gap-4 h-[calc(100vh-5rem)]">

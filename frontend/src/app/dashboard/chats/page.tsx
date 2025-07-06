@@ -1,9 +1,9 @@
 
 
 import { redirect } from 'next/navigation'
-import mockChatHistory from '@/assets/sample-chats-history'
+import mockChatHistory from '@/assets/sample-chats-history' // Mock chat history data
 // This is a main page of chats section of the dashboard
-// Todo: You need to fetch 1st chatId to navigate to the chat page
+// Todo: Get the chat history from ChatContext then get the first user_id from it
 
 // This the main component to display the chat page
 // ** Always redirect to the conversation with the first user in the chat history

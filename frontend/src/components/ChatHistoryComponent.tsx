@@ -5,9 +5,14 @@ import { formatDistanceToNow } from 'date-fns'
 import mockChatHistory from '@/assets/sample-chats-history';
 
 // Mock chat history data
-// current user id: asdff-5555-6666
+
 
 export default function ChatHistoryComponent() {
+
+    // Todo: Use chathistory from the ChatContext
+
+
+
     return (
         <div className="h-full">
             <div className="mb-4">
