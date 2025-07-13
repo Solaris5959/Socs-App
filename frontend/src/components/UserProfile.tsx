@@ -23,10 +23,10 @@ import {
 import { Input } from "@/components/ui/input"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
+import { ProfileSkeleton } from "@/components/ProfileSkeleton"
 import { useProfile } from '@/contexts/UserContext';
 import React, { useRef } from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // UserProfile component for displaying and updating user profile information
 export function UserProfile({
@@ -41,8 +41,25 @@ export function UserProfile({
     displayName?: string
   }>({})
 
-  // Todo: Add skeleton loading state for user profile data and handle loading state
+  // Set loading state for the user profile
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Add useEffect to simulate/handle data loading
+  useEffect(() => {
+
+    if (userProfile) {
+
+      // ! Simulate a delay to mimic data fetching
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 500)
+
+
+      // Clear the timer on component unmount
+      return () => clearTimeout(timer);
+
+    }
+  });
 
   // Todo: Implement change password functionality
 
@@ -130,194 +147,203 @@ export function UserProfile({
 
   return (
     <div className={cn("flex items-center justify-center px-4 py-8", className)} {...props}>
-      <Card className="w-full  bg-white dark:bg-slate-900 border-none shadow-none">
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between ">
-          <div>
-            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">
-              User Profile
-            </CardTitle>
-            <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
-              Update your profile information, change your password, or delete your account.
-            </CardDescription>
-          </div>
 
-          {/* Profile Picture Section */}
-          <div className="mt-6 md:mt-0 flex flex-col items-center md:items-end gap-3 relative">
-            <Avatar className="w-32 h-32 shadow-sm  border-slate-300 dark:border-slate-700">
-              <AvatarImage
-                src={userProfile?.profile_pic_url || undefined}
-                alt="User Profile"
-                className="object-cover w-32 h-32 rounded-full"
-              />
-              <AvatarFallback className="text-2xl font-semibold  dark:bg-slate-800
+      {isLoading ? (
+        <ProfileSkeleton />
+      ) : (
+        <Card className="w-full  bg-white dark:bg-slate-900 border-none shadow-none">
+          <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between ">
+            <div>
+              <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">
+                User Profile
+              </CardTitle>
+              <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+                Update your profile information, change your password, or delete your account.
+              </CardDescription>
+            </div>
+
+            {/* Profile Picture Section */}
+            <div className="mt-6 md:mt-0 flex flex-col items-center md:items-end gap-3 relative">
+              <Avatar className="w-32 h-32 shadow-sm  border-slate-300 dark:border-slate-700">
+                <AvatarImage
+                  src={userProfile?.profile_pic_url || undefined}
+                  alt="User Profile"
+                  className="object-cover w-32 h-32 rounded-full"
+                />
+                <AvatarFallback className="text-2xl font-semibold  dark:bg-slate-800
                text-slate-600 dark:text-slate-300">
-                SOCS
-              </AvatarFallback>
-            </Avatar>
+                  SOCS
+                </AvatarFallback>
+              </Avatar>
 
-            {/* Camera Icon Overlay Button */}
-            <div className="absolute bottom-1 right-1">
-              {/* Hidden file input */}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-              />
+              {/* Camera Icon Overlay Button */}
+              <div className="absolute bottom-1 right-1">
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                />
 
-              <button
-                type="button"
-                aria-label="Upload Profile Picture"
-                className="bg-slate-600 hover:bg-blue-500
+                <button
+                  type="button"
+                  aria-label="Upload Profile Picture"
+                  className="bg-slate-600 hover:bg-blue-500
               text-white p-2 rounded-full shadow-md transition-colors cursor-pointer"
-                onClick={handleCameraClick}
-              >
-                <Camera className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name */}
-              <div className="grid gap-2">
-                <label htmlFor="first_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  First Name
-                </label>
-                <Input id="first_name" name="first_name" defaultValue={userProfile?.first_name} disabled={!isEditing} />
-              </div>
-
-              {/* Last Name */}
-              <div className="grid gap-2">
-                <label htmlFor="last_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Last Name
-                </label>
-                <Input id="last_name" name="last_name" defaultValue={userProfile?.last_name} disabled={!isEditing} />
-              </div>
-
-              {/* Display Name */}
-              <div className="grid gap-2">
-                <label htmlFor="display_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Display Name
-                </label>
-                <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name} disabled={!isEditing} className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
-        ${errors.displayName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`} />
-                {errors.displayName && <p className="text-sm text-red-500">{errors.displayName}</p>}
-              </div>
-
-              {/* Email */}
-              <div className="grid gap-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Email
-                </label>
-                <Input id="email" name="email" type="email" defaultValue={userProfile?.email} disabled />
-              </div>
-
-              {/* Phone Number */}
-              <div className="grid gap-2">
-                <label htmlFor="phone_number" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Phone Number
-                </label>
-                <Input id="phone_number" name="phone_number" type="tel" defaultValue={userProfile?.phone_number} disabled={!isEditing} />
-              </div>
-
-              {/* Position */}
-              <div className="grid gap-2">
-                <label htmlFor="position" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Position
-                </label>
-                <Input id="position" name="position" defaultValue={userProfile?.position} disabled={!isEditing} />
-              </div>
-
-              {/* Company */}
-              <div className="grid gap-2 md:col-span-2">
-                <label htmlFor="company" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Company
-                </label>
-                <Input id="company" name="company" defaultValue={userProfile?.company} disabled={!isEditing} />
-              </div>
-            </div>
-
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4">
-              {/* Left-aligned actions */}
-              <div className="flex flex-col sm:flex-row sm:gap-4 gap-2">
-
-                {/* Update Profile btn */}
-                <Button
-                  type="submit"
-                  className="rounded-xl bg-blue-500 hover:bg-blue-700 text-white cursor-pointer"
+                  onClick={handleCameraClick}
                 >
-                  {isEditing ? "Save Changes" : "Update Profile"}
-                </Button>
-
-                {/* Cancel Profile btn */}
-                {isEditing && (
-                  <Button
-                    type="button"
-                    className="rounded-xl bg-slate-500 hover:bg-slate-700 text-white cursor-pointer"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    Cancel
-                  </Button>
-                )}
-
-                {/* Change password btn/ hide change password in editing mode */}
-                {
-                  !isEditing && (
-                    <Button
-                      type="button"
-                      className="rounded-xl bg-green-500 hover:bg-green-700 text-white cursor-pointer"
-                      onClick={() => alert("Change Password functionality not implemented yet.")}
-                    >
-                      Change Password
-                    </Button>
-                  )
-                }
-              </div>
-
-              {/* Right-aligned destructive action */}
-              <div className="flex justify-end">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      type="button"
-                      className="rounded-xl cursor-pointer w-full"
-                    >
-                      Delete Account
-                    </Button>
-                  </AlertDialogTrigger>
-
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Do you want to delete your account?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your account
-                        and remove your data from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogAction
-                        onClick={handleDeleteAccount}
-                        className="bg-red-600 hover:bg-red-700 cursor-pointer"
-                      >
-                        Confirm Deletion
-                      </AlertDialogAction>
-                      <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                  <Camera className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* First Name */}
+                <div className="grid gap-2">
+                  <label htmlFor="first_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    First Name
+                  </label>
+                  <Input id="first_name" name="first_name" defaultValue={userProfile?.first_name} disabled={!isEditing} />
+                </div>
+
+                {/* Last Name */}
+                <div className="grid gap-2">
+                  <label htmlFor="last_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Last Name
+                  </label>
+                  <Input id="last_name" name="last_name" defaultValue={userProfile?.last_name} disabled={!isEditing} />
+                </div>
+
+                {/* Display Name */}
+                <div className="grid gap-2">
+                  <label htmlFor="display_name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Display Name
+                  </label>
+                  <Input id="display_name" name="display_name" defaultValue={userProfile?.display_name} disabled={!isEditing} className={`w-full px-4 py-2 rounded-xl border bg-gray-50 text-gray-900 focus:outline-none transition duration-150 ease-in-out
+        ${errors.displayName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200'}`} />
+                  {errors.displayName && <p className="text-sm text-red-500">{errors.displayName}</p>}
+                </div>
+
+                {/* Email */}
+                <div className="grid gap-2">
+                  <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email
+                  </label>
+                  <Input id="email" name="email" type="email" defaultValue={userProfile?.email} disabled />
+                </div>
+
+                {/* Phone Number */}
+                <div className="grid gap-2">
+                  <label htmlFor="phone_number" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Phone Number
+                  </label>
+                  <Input id="phone_number" name="phone_number" type="tel" defaultValue={userProfile?.phone_number} disabled={!isEditing} />
+                </div>
+
+                {/* Position */}
+                <div className="grid gap-2">
+                  <label htmlFor="position" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Position
+                  </label>
+                  <Input id="position" name="position" defaultValue={userProfile?.position} disabled={!isEditing} />
+                </div>
+
+                {/* Company */}
+                <div className="grid gap-2 md:col-span-2">
+                  <label htmlFor="company" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Company
+                  </label>
+                  <Input id="company" name="company" defaultValue={userProfile?.company} disabled={!isEditing} />
+                </div>
+              </div>
+
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4">
+                {/* Left-aligned actions */}
+                <div className="flex flex-col sm:flex-row sm:gap-4 gap-2">
+
+                  {/* Update Profile btn */}
+                  <Button
+                    type="submit"
+                    className="rounded-xl bg-blue-500 hover:bg-blue-700 text-white cursor-pointer"
+                  >
+                    {isEditing ? "Save Changes" : "Update Profile"}
+                  </Button>
+
+                  {/* Cancel Profile btn */}
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      className="rounded-xl bg-slate-500 hover:bg-slate-700 text-white cursor-pointer"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+
+                  {/* Change password btn/ hide change password in editing mode */}
+                  {
+                    !isEditing && (
+                      <Button
+                        type="button"
+                        className="rounded-xl bg-green-500 hover:bg-green-700 text-white cursor-pointer"
+                        onClick={() => alert("Change Password functionality not implemented yet.")}
+                      >
+                        Change Password
+                      </Button>
+                    )
+                  }
+                </div>
+
+                {/* Right-aligned destructive action */}
+                <div className="flex justify-end">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        type="button"
+                        className="rounded-xl cursor-pointer w-full"
+                      >
+                        Delete Account
+                      </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Do you want to delete your account?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your account
+                          and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          className="bg-red-600 hover:bg-red-700 cursor-pointer"
+                        >
+                          Confirm Deletion
+                        </AlertDialogAction>
+                        <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
     </div>
+
+
+
+
   )
 }

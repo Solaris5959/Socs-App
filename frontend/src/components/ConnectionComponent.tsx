@@ -30,6 +30,7 @@ import {
 
 import { useConnection } from '@/contexts/ConnectionContext';
 import { ConnectionProfileType } from '@/interface/ConnectionProfile';
+import { Skeleton } from "@/components/ui/skeleton"
 
 // Todo: Add notification when user have request
 // Todo: Add loading animation when fetching connections
@@ -40,6 +41,11 @@ import { ConnectionProfileType } from '@/interface/ConnectionProfile';
 
 // Connection component to display user connections
 export default function MyConnections() {
+
+
+    // Add a loading state
+    const [isLoading, setIsLoading] = useState(true);
+
 
     // Use connection context to manage connections
     const { fetchUserConnections,
@@ -66,9 +72,16 @@ export default function MyConnections() {
     useEffect(() => {
         // Fetch connections when the component mounts
         const getConnections = async () => {
-            const connectionsData = await fetchUserConnections();
-            setConnections(connectionsData);
-        }
+            setIsLoading(true); // Set loading to true when fetching starts
+            try {
+                // ! Simulate a delay 0.5s
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const connectionsData = await fetchUserConnections();
+                setConnections(connectionsData);
+            } finally {
+                setIsLoading(false); // Set loading to false when fetching ends
+            }
+        };
 
         // Fetch suggested connections
         const getSuggestedConnections = async () => {
@@ -395,7 +408,21 @@ export default function MyConnections() {
 
             {/* -----------  Connections container -------------------- */}
             <div className="m-4 space-y-4">
-                {connections.length > 0 ? (
+                {isLoading ? (
+                    // Loading skeleton
+                    <div className="space-y-4">
+                        {[...Array(6)].map((_, index) => (
+                            <div key={index} className="p-4 bg-white dark:bg-slate-800 rounded-lg ">
+                                <div className="flex items-center space-x-3 mb-4">
+                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                    <Skeleton className="w-24 h-4" />
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
+                ) : connections.length > 0 ? (
+                    // Connections list
                     connections.map((connection) => (
                         <div
                             key={connection.user_id}
@@ -425,7 +452,9 @@ export default function MyConnections() {
                                     {/* Display company and position if available */}
                                     {connection.position && connection.position !== 'N/A' &&
                                         connection.company && connection.company !== 'N/A' && (
-                                            <p className="text-slate-500 dark:text-slate-400">{connection.position} at {connection.company}</p>
+                                            <p className="text-slate-500 dark:text-slate-400">
+                                                {connection.position} at {connection.company}
+                                            </p>
                                         )}
                                 </div>
                             </div>
@@ -444,9 +473,7 @@ export default function MyConnections() {
                                     {/* Navigate to chatroom by userID */}
                                     <Link href={`/dashboard/chats/${connection.user_id}`}>
                                         <Button variant="ghost" size="sm" className="p-2 cursor-pointer hover:bg-gray-200">
-
                                             <MessageCircle className="w-10 h-10 text-gray-700" />
-
                                         </Button>
                                     </Link>
                                     {selectedConnection && (
@@ -473,7 +500,6 @@ export default function MyConnections() {
                                                         Remove
                                                     </AlertDialogAction>
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
@@ -483,17 +509,15 @@ export default function MyConnections() {
                         </div>
                     ))
                 ) : (
-                    <div className="py-8 text-center text-gray-500">No connections found.</div>
+                    // No connections message
+                    <div className="py-8 text-center text-gray-500">
+                        No connections found.
+                    </div>
                 )}
             </div>
 
 
 
         </div >
-
-
-
-
-
     );
 };

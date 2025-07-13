@@ -5,7 +5,7 @@ import PostComponent from './PostComponent';
 import { usePostContext } from '@/contexts/PostContext';
 
 import { PostType } from '@/interface/Post';
-
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function MyFavorites() {
 
@@ -20,6 +20,10 @@ export default function MyFavorites() {
 
         // Fetch posts from the context
         const getPosts = async () => {
+
+            // ! Simulate a delay 0.5 s
+            await new Promise(resolve => setTimeout(resolve, 500));
+
 
             // Call the fetchPosts function from context
             const postData = await fetchFavoritePosts();
@@ -45,6 +49,22 @@ export default function MyFavorites() {
 
             {/* Favorite Post feed */}
             <div className="mt-8 w-full max-w-2xl space-y-4">
+
+                {/* Loading skeleton while posts are being fetched */}
+                {allPosts.length === 0 && (
+                    <div className="space-y-4">
+                        {[...Array(3)].map((_, index) => (
+                            <div key={index} className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                <div className="flex items-center space-x-3 mb-4">
+                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                    <Skeleton className="w-24 h-4" />
+                                </div>
+                                <Skeleton className="h-6 mb-2" />
+                                <Skeleton className="h-40" />
+                            </div>
+                        ))}
+                    </div>
+                )}
                 {allPosts.map(post => (
                     <PostComponent key={post.id} postInfo={post} />
                 ))}
