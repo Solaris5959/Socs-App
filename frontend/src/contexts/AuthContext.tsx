@@ -105,7 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem("access_token", data.session.access_token);
 
 
-
             // Show success message and redirect to dashboard page
             toast.success("Login successful!");
 
@@ -113,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             router.push("/dashboard");
 
             return data;
+
 
         } catch (error) {
             toast.error("Login failed. Please try again.");
@@ -296,3 +296,4 @@ export const useAuth = () => {
     }
     return context;
 };
+
