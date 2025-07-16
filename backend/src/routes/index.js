@@ -42,6 +42,8 @@ import {
   delete_follow
 } from './connections.js';
 
+import { uploadGroupFile, uploadUserFile } from './files.js';
+
 // Note: Import everything from profile.js as 
 
 //define all routes here ('/route' , method) all with have the req.user object
@@ -102,7 +104,15 @@ router.get('/connections/following', query_following) //GET all following for us
 router.post('/connections/follow', new_follow) //POST to follow a user
 router.delete('/connections/unfollow/:id', delete_follow) //DELETE to unfollow a user
 
-
+// Files
+router.post('/files/user', uploadUserFile) // Upload a file for user
+router.post('/files/group/:groupId', uploadGroupFile) // Upload a file for group
+router.get('/files/user', {}) // Get all files for user
+router.get('/files/group/:groupId', {}) // Get all files for group
+router.get('/files/user/:fileId', {}) // Get a specific file's signed URL for user
+router.get('/files/group/:groupId/:fileId', {}) // Get a specific file's signed URL for group
+router.delete('/files/user/:fileId', {}) // Delete a file for user
+router.delete('/files/group/:groupId/:fileId', {}) // Delete a file for group
 
 
 
