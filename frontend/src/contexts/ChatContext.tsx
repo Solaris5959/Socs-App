@@ -21,9 +21,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     // State to manage posts, favorite posts, and user posts
     const [loading, setLoading] = useState<boolean>(false);
 
-    //Temporary: just for not getting error
-    console.log(loading);
-
 
     // Todo: useEffect to fetch chat history when the component mounts
     useEffect(() => {
@@ -32,14 +29,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         const fetchChatHistory = async (): Promise<string[]> => {
             // Logic to fetch chat history from the server
             setLoading(true);
-            try{
+            try {
                 const token = localStorage.getItem("acess_token");
 
                 const response = await fetch(
                     `${API_URL}/socs/api/v1/index/chat`,
                     {
                         method: 'GET',
-                        headers:{
+                        headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`,
                         }
@@ -54,11 +51,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
                 return data
 
-            }catch(error){
+            } catch (error) {
                 console.error('Error fetching chat history: ', error);
                 toast.error('Failed to fetch chat history');
                 return []; // Ensure fallback is always an array
-            }finally{
+            } finally {
                 setLoading(false);
             }
         }
@@ -80,14 +77,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         console.log(`Fetching chat for user_id: ${user_id}`);
 
         setLoading(true);
-        try{
+        try {
             const token = localStorage.getItem("access_token");
 
             const response = await fetch(
                 `${API_URL}/socs/api/v1/index/chat/${user_id}`,
                 {
                     method: 'GET',
-                    headers:{
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
                     }
@@ -100,11 +97,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
             const data = await response.json();
             return data;
-        }catch(error){
+        } catch (error) {
             console.error('Error fetching chat history: ', error);
             toast.error('Failed to fetch chat history');
             return []; // Ensure fallback is always an array
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -114,6 +111,36 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const sendMessage = async (receiver_id: string, message: string): Promise<void> => {
         // Logic to send a message
         console.log(`Sending message to ${receiver_id}: ${message}`);
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("access_token");
+
+            const headers: HeadersInit = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            const body = JSON.stringify({
+                receiver_id,
+                message
+            });
+
+            const response = await fetch(`${API_URL}/socs/api/v1/index/chat`, {
+                method: 'POST',
+                headers,
+                body
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to add a post');
+            }
+
+            toast.success('Message sent successfully!');
+        } catch (error) {
+            console.error('Error sending a message:', error);
+            toast.error('Failed to send a message.');
+        } finally {
+            setLoading(false);
+        }
 
     };
 
@@ -121,6 +148,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     // State variables to manage user and session
     const value = {
+        loading,
         chatHistory,
         fetchChatByUserId,
         sendMessage,
