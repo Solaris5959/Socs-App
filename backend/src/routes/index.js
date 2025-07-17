@@ -42,7 +42,7 @@ import {
   delete_follow
 } from './connections.js';
 
-import { uploadGroupFile, uploadUserFile } from './files.js';
+import { listGroupFileMetadata, listUserFileMetadata, uploadGroupFile, uploadUserFile } from './files.js';
 
 // Note: Import everything from profile.js as 
 
@@ -85,7 +85,7 @@ router.delete('/posts/like', unlike_post);
 router.delete('/posts/favourite', unfavourite_post);
 
 //Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
-router.get('/chat', query_chat) //return all chats for user RECIEVED
+router.get('/chat', query_chat) //return all chats for user RECEIVED
 router.get('/chat/:id', read_msg), //return all msgs from current user with other user
 router.post('/chat', new_msg) //send a new message to id 
 router.put('/chat/:messageID', update_msg) // messageID is the exact message to be updated, time stamp also updated on success 
@@ -107,8 +107,8 @@ router.delete('/connections/unfollow/:id', delete_follow) //DELETE to unfollow a
 // Files
 router.post('/files/user', uploadUserFile) // Upload a file for user
 router.post('/files/group/:groupId', uploadGroupFile) // Upload a file for group
-router.get('/files/user', {}) // Get all files for user
-router.get('/files/group/:groupId', {}) // Get all files for group
+router.get('/files/user', listUserFileMetadata) // Get all files for user
+router.get('/files/group/:groupId', listGroupFileMetadata) // Get all files for group
 router.get('/files/user/:fileId', {}) // Get a specific file's signed URL for user
 router.get('/files/group/:groupId/:fileId', {}) // Get a specific file's signed URL for group
 router.delete('/files/user/:fileId', {}) // Delete a file for user

@@ -78,3 +78,74 @@ export async function uploadGroupFile(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function listUserFileMetadata(req, res) {
+  logger.debug("Listing file metadata for user");
+
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'User not authenticated' });
+
+    const { data, error } = await supabase(req.user.access_token)
+      .from('files')
+      .select(`
+        id,
+        filename,
+        file_type,
+        size,
+        uploaded_at,
+        path
+      `)
+      .eq('uploaded_by', userId);
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (err) {
+    logger.error('Error listing user file metadata:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function listGroupFileMetadata(req, res) {
+  logger.debug("Listing file metadata for group");
+
+  try {
+    const userId = req.user?.id;
+    const groupId = req.params.groupId;
+    if (!userId) return res.status(401).json({ error: 'User not authenticated' });
+    if (!groupId) return res.status(400).json({ error: 'Missing groupId' });
+
+    // Verify membership
+    const { data: membership, error: mErr } = await supabase(req.user.access_token)
+      .from('group_memberships')
+      .select('role')
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+      .single();
+
+    if (mErr) throw mErr;
+    if (!membership) return res.status(403).json({ error: 'Not a group member' });
+
+    // Retrieve metadata
+    const { data, error } = await supabase(req.user.access_token)
+      .from('files')
+      .select(`
+        id,
+        filename,
+        file_type,
+        size,
+        uploaded_at,
+        path,
+        uploaded_by
+      `)
+      .eq('group_id', groupId);
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (err) {
+    logger.error('Error listing group file metadata:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
