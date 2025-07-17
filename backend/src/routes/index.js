@@ -42,7 +42,7 @@ import {
   delete_follow
 } from './connections.js';
 
-import { listGroupFileMetadata, listUserFileMetadata, uploadGroupFile, uploadUserFile } from './files.js';
+import { deleteGroupFile, deleteUserFile, getGroupFileUrl, getUserFileUrl, listGroupFileMetadata, listUserFileMetadata, uploadGroupFile, uploadUserFile } from './files.js';
 
 // Note: Import everything from profile.js as 
 
@@ -109,10 +109,10 @@ router.post('/files/user', uploadUserFile) // Upload a file for user
 router.post('/files/group/:groupId', uploadGroupFile) // Upload a file for group
 router.get('/files/user', listUserFileMetadata) // Get all files for user
 router.get('/files/group/:groupId', listGroupFileMetadata) // Get all files for group
-router.get('/files/user/:fileId', {}) // Get a specific file's signed URL for user
-router.get('/files/group/:groupId/:fileId', {}) // Get a specific file's signed URL for group
-router.delete('/files/user/:fileId', {}) // Delete a file for user
-router.delete('/files/group/:groupId/:fileId', {}) // Delete a file for group
+router.get('/files/user/:fileId', getUserFileUrl) // Get a specific file's signed URL for user
+router.get('/files/group/:groupId/:fileId', getGroupFileUrl) // Get a specific file's signed URL for group
+router.delete('/files/user/:fileId', deleteUserFile) // Delete a file for user
+router.delete('/files/group/:groupId/:fileId', deleteGroupFile) // Delete a file for group
 
 
 
