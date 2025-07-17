@@ -15,7 +15,7 @@ export async function uploadUserFile(req, res) {
     }
 
     // 1. Call RPC to create metadata and permissions
-    const { data, error: rpcError } = await supabase(req.user.access_token)
+    const { data, error: rpcError } = await supabase
       .rpc('upload_user_file_metadata', {
         _original_filename: file.originalname,
         _file_type: file.mimetype,
@@ -26,7 +26,7 @@ export async function uploadUserFile(req, res) {
     const meta = data?.[0];
 
     // 2. Upload the actual file to Supabase Storage
-    const { error: storageError } = await supabase(req.user.access_token)
+    const { error: storageError } = await supabase
       .storage
       .from(meta.bucket)
       .upload(meta.storage_path, file.buffer, { contentType: meta.file_type, upsert: true });
@@ -54,7 +54,7 @@ export async function uploadGroupFile(req, res) {
     }
 
     // Call RPC to create metadata and permissions
-    const { data, error: rpcError } = await supabase(req.user.access_token)
+    const { data, error: rpcError } = await supabase
       .rpc('upload_group_file_metadata', {
         _original_filename: file.originalname,
         _file_type: file.mimetype,
@@ -66,7 +66,7 @@ export async function uploadGroupFile(req, res) {
     const meta = data?.[0];
 
     // Upload the file to the group-files bucket
-    const { error: storageError } = await supabase(req.user.access_token)
+    const { error: storageError } = await supabase
       .storage
       .from(meta.bucket)
       .upload(meta.storage_path, file.buffer, { contentType: meta.file_type, upsert: true });
@@ -88,7 +88,7 @@ export async function listUserFileMetadata(req, res) {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
 
-    const { data, error } = await supabase(req.user.access_token)
+    const { data, error } = await supabase
       .from('files')
       .select(`
         id,
@@ -119,7 +119,7 @@ export async function listGroupFileMetadata(req, res) {
     if (!groupId) return res.status(400).json({ error: 'Missing groupId' });
 
     // Verify membership
-    const { data: membership, error: mErr } = await supabase(req.user.access_token)
+    const { data: membership, error: mErr } = await supabase
       .from('group_memberships')
       .select('role')
       .eq('group_id', groupId)
@@ -130,7 +130,7 @@ export async function listGroupFileMetadata(req, res) {
     if (!membership) return res.status(403).json({ error: 'Not a group member' });
 
     // Retrieve metadata
-    const { data, error } = await supabase(req.user.access_token)
+    const { data, error } = await supabase
       .from('files')
       .select(`
         id,
@@ -160,8 +160,6 @@ export async function getUserFileUrl(req, res) {
     const fileId = req.params.fileId;
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
     if (!fileId) return res.status(400).json({ error: 'fileId required' });
-
-    const supabase = supabase(req.user.access_token);
 
     // Retrieve file metadata + ensure ownership
     const { data: file, error: metaErr } = await supabase
@@ -197,7 +195,7 @@ export async function getGroupFileUrl(req, res) {
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
 
     // Check group membership
-    const { data: membership, error: memErr } = await supabase(req.user.access_token)
+    const { data: membership, error: memErr } = await supabase
       .from('group_memberships')
       .select('user_id')
       .eq('group_id', groupId)
@@ -208,7 +206,7 @@ export async function getGroupFileUrl(req, res) {
     }
 
     // Fetch file metadata
-    const { data: file, error: metaErr } = await supabase(req.user.access_token)
+    const { data: file, error: metaErr } = await supabase
       .from('files')
       .select('bucket_id, path')
       .eq('id', fileId)
@@ -218,7 +216,7 @@ export async function getGroupFileUrl(req, res) {
       return res.status(404).json({ error: 'File not found or access denied' });
     }
 
-    const { data, error } = await supabase(req.user.access_token)
+    const { data, error } = await supabase
         .storage
         .from(file.bucket_id)
         .createSignedUrl(file.path, SIGNED_URL_EXPIRATION);
@@ -239,8 +237,6 @@ export async function deleteUserFile(req, res) {
     const userId = req.user?.id;
     const fileId = req.params.fileId;
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
-
-    const supabase = supabase(req.user.access_token);
 
     const { data: file, error: metaErr } = await supabase
       .from('files')
@@ -279,8 +275,6 @@ export async function deleteGroupFile(req, res) {
     const userId = req.user?.id;
     const { groupId, fileId } = req.params;
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
-
-    const supabase = supabase(req.user.access_token);
 
     const { data: membership, error: memErr } = await supabase
       .from('group_memberships')
