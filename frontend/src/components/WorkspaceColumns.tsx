@@ -1,8 +1,63 @@
+'use client';
+
 // components/workspace/WorkspaceColumns.tsx or app/workspace/columns.tsx
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Eye, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FileData } from "@/interface/FileType"
+import Link from "next/link"
+import { toast } from "sonner"
+
+// URL for the API service
+const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
+
+// Method to download a file
+const downloadFile = async (fileId: string): Promise<void> => {
+    try {
+        const token = localStorage.getItem("access_token");
+
+        // 1. Fetch signed URL from your backend
+        const res = await fetch(`${API_URL}/socs/api/v1/index/files/user/${fileId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!res.ok) {
+            console.error("Failed to get signed URL");
+            toast.error("Failed to get file link");
+            return;
+        }
+
+        const { url: signedUrl } = await res.json();
+
+        // 2. Fetch the file from the signed URL
+        const fileRes = await fetch(signedUrl);
+
+        if (!fileRes.ok) {
+            console.error("Failed to download file from signed URL");
+            toast.error("Failed to download file");
+            return;
+        }
+
+        // 3. Create blob and trigger download
+        const blob = await fileRes.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = fileId; // Replace with actual filename if needed
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        toast.success("File downloaded successfully");
+    } catch (error) {
+        console.error("Error downloading file:", error);
+        toast.error("An error occurred while downloading the file");
+    }
+};
 
 // Helper function to format file size
 const formatFileSize = (bytes: number): string => {
@@ -26,12 +81,13 @@ const formatDate = (dateString: string): string => {
 }
 
 
+
 // Define each columns for the workspace component
 // This component manages the columns for the workspace table
 // It includes file name, uploaded by, uploaded date, file size, and actions
 export const WorkspaceColumns: ColumnDef<FileData>[] = [
     {
-        accessorKey: "file_name",
+        accessorKey: "filename",
         header: ({ column }) => {
             return (
                 <Button
@@ -44,7 +100,7 @@ export const WorkspaceColumns: ColumnDef<FileData>[] = [
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="font-medium">{row.getValue("file_name")}</div>,
+        cell: ({ row }) => <div className="font-medium">{row.getValue("filename")}</div>,
     },
 
     {
@@ -60,11 +116,14 @@ export const WorkspaceColumns: ColumnDef<FileData>[] = [
         cell: ({ row }) => {
 
             // Get
-            const { display_name, position, company } = row.original;
+            const { displayName, position, company } = row.original;
             return (
                 <div>
-                    <div className="font-medium">{display_name}</div>
-                    <div className="text-sm text-gray-500">{position}, {company}</div>
+                    <div className="font-medium">{displayName}</div>
+                    {position && company && (
+                        <div className="text-sm text-gray-500">{position} at {company}</div>
+                    )}
+
                 </div>
             );
         },
@@ -89,7 +148,7 @@ export const WorkspaceColumns: ColumnDef<FileData>[] = [
         },
     },
     {
-        accessorKey: "file_size",  // calculate file size
+        accessorKey: "size",  // calculate file size
         header: ({ column }) => {
             return (
                 <Button
@@ -105,7 +164,7 @@ export const WorkspaceColumns: ColumnDef<FileData>[] = [
         cell: ({ row }) => {
 
             // Get the file size from the row data
-            const size = row.getValue("file_size") as number;
+            const size = row.getValue("size") as number;
             return <div className="text-sm text-gray-600 ml-5">{formatFileSize(size)}</div>;
         },
     },
@@ -118,30 +177,30 @@ export const WorkspaceColumns: ColumnDef<FileData>[] = [
 
             return (
                 <div className="flex items-center gap-2">
-                    <Button
-                        className="bg-green-500 hover:bg-green-600 text-white cursor-pointer"
-                        size="sm"
-                        onClick={() => {
-                            // Add view logic here
-                            console.log('Viewing file:', file.file_name);
-                        }}
-                    >
-                        <Eye className="h-4 w-4 " />
-                        View
-                    </Button>
+                    <Link href={`${file.path}`}
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        <Button
+                            className="bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+                            size="sm"
+
+                        >
+                            <Eye className="h-4 w-4 " />
+                            View
+                        </Button>
+                    </Link>
+
 
                     <Button
                         className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
                         size="sm"
                         onClick={() => {
-                            // Todo: Add download logic here
-                            console.log('Downloading file:', file.file_name);
-                            // Example: window.open(file.file_path, '_blank');
-                        }}
-                    >
+                            downloadFile(file.id);
+                        }}                        >
                         <Download className="h-4 w-4 " />
                         Download
                     </Button>
+
                 </div>
             )
         },

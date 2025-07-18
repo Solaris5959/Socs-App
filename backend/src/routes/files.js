@@ -1,40 +1,82 @@
 import supabase from "../lib/supabaseClient.js";
+import supabaseAdmin from "../lib/supabaseAdmin.js";
 import logger from "../logger.js";
+import { v4 as uuidv4 } from 'uuid';
 
 const SIGNED_URL_EXPIRATION = 60;
 
+
+// Function to upload a file for a user
 export async function uploadUserFile(req, res) {
   logger.debug("uploadUserFile called");
 
   try {
+
+    // Get user ID and file from request
     const userId = req.user?.id;
-    const file = req.files?.file;
+    const file = req.file;
+
+    // logging userId and file for debugging
+    console.log("uploadUserFile - userId:", userId);
+    console.log("uploadUserFile - file:", file);
 
     if (!userId || !file) {
       return res.status(400).json({ error: 'Missing authentication or file' });
     }
 
-    // 1. Call RPC to create metadata and permissions
-    const { data, error: rpcError } = await supabase
-      .rpc('upload_user_file_metadata', {
-        _original_filename: file.originalname,
-        _file_type: file.mimetype,
-        _size: file.size
+
+    // Create unique filename to prevent conflicts
+    const path = `${req.user.id}/${uuidv4()}`;
+
+    // Upload image to Supabase Storage bucket
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('user-files') // Storage bucket name
+      .upload(path, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true
       });
+
+    logger.debug("Upload new file: " + JSON.stringify(uploadData));
+
+    // Log metadata values for debugging
+    console.log('Metadata values:', {
+      userId,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+
+
+    // Get public URL for the uploaded image
+    const { data: publicUrl } = supabase.storage.from('user-files').getPublicUrl(path);
+    const filePath = publicUrl.publicUrl;
+
+    // get file id from uploadData
+    const fileId = uploadData.path.split('/').pop(); // Extract file ID from the
+
+    // Create metadata in the database
+    const { data, error: rpcError } = await supabaseAdmin.rpc('create_user_file_metadata_v2', {
+      _user_id: userId,
+      _file_id: fileId,
+      _original_filename: file.originalname,
+      _file_type: file.mimetype,
+      _file_path: filePath,
+      _size: file.size
+    });
 
     if (rpcError) throw rpcError;
     const meta = data?.[0];
 
-    // 2. Upload the actual file to Supabase Storage
-    const { error: storageError } = await supabase
-      .storage
-      .from(meta.bucket)
-      .upload(meta.storage_path, file.buffer, { contentType: meta.file_type, upsert: true });
 
-    if (storageError) throw storageError;
+    // Handle upload failures
+    if (uploadError) return res.status(500).json({ error: 'Image upload failed' });
+
+
 
     logger.debug('File uploaded successfully', { fileId: meta.file_id });
     res.status(201).json(meta);
+
+
   } catch (err) {
     logger.error('uploadUserFile error:', err);
     res.status(500).json({ error: err.message });
@@ -81,6 +123,7 @@ export async function uploadGroupFile(req, res) {
   }
 }
 
+// Function to get all files metadata for a user
 export async function listUserFileMetadata(req, res) {
   logger.debug("Listing file metadata for user");
 
@@ -88,7 +131,8 @@ export async function listUserFileMetadata(req, res) {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
 
-    const { data, error } = await supabase
+    // 1. Get all files uploaded by the user
+    const { data: files, error } = await supabase
       .from('files')
       .select(`
         id,
@@ -96,19 +140,42 @@ export async function listUserFileMetadata(req, res) {
         file_type,
         size,
         uploaded_at,
-        path
+        path,
+        uploaded_by
       `)
-      .eq('uploaded_by', userId);
+
 
     if (error) throw error;
 
-    res.status(200).json(data);
+    // 2. Extract unique user IDs from files
+    const userIds = [...new Set(files.map(file => file.uploaded_by))];
+
+    // 3. Fetch user profile details
+    const { data: userDetails, error: userError } = await supabase
+      .from("user_profiles")
+      .select("user_id, display_name, company, position")
+      .in("user_id", userIds);
+
+    if (userError) throw userError;
+
+    // 4. Merge file and user profile data
+    const filesWithUser = files.map(file => {
+      const user = userDetails.find(u => u.user_id === file.uploaded_by);
+      return {
+        ...file,
+        user_id: user.user_id,
+        displayName: user.display_name,
+        company: user.company,
+        position: user.position,
+      };
+    });
+
+    return res.status(200).json(filesWithUser);
   } catch (err) {
     logger.error('Error listing user file metadata:', err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
-
 export async function listGroupFileMetadata(req, res) {
   logger.debug("Listing file metadata for group");
 
@@ -152,40 +219,48 @@ export async function listGroupFileMetadata(req, res) {
   }
 }
 
+// Function to get a signed URL for a user's file - Download file
 export async function getUserFileUrl(req, res) {
   logger.debug("getUserFileUrl called");
 
   try {
     const userId = req.user?.id;
     const fileId = req.params.fileId;
+
     if (!userId) return res.status(401).json({ error: 'User not authenticated' });
     if (!fileId) return res.status(400).json({ error: 'fileId required' });
 
-    // Retrieve file metadata + ensure ownership
-    const { data: file, error: metaErr } = await supabase
-      .from('files')
-      .select('bucket_id, path')
-      .eq('id', fileId)
-      .eq('uploaded_by', userId)
-      .single();
-    if (metaErr || !file) {
-      return res.status(404).json({ error: 'File not found or access denied' });
+    const bucketFilePath = `${userId}/${fileId}`;
+    const expiresIn = 60 * 5; // URL expires in 5 minutes
+
+    console.log("getUserFileUrl - userId:", userId);
+    console.log("getUserFileUrl - fileId:", fileId);
+    console.log("getUserFileUrl - bucketFilePath:", bucketFilePath);
+
+    const { data, error } = await supabaseAdmin
+      .storage
+      .from('user-files')
+      .createSignedUrl(bucketFilePath, expiresIn);
+
+    console.log("getUserFileUrl - signedUrl data:", data);
+
+    if (error || !data?.signedUrl) {
+      console.error("Signed URL error:", error);
+      return res.status(404).json({ error: 'File not found or unauthorized' });
     }
 
-    const { data, error } = await supabase
-      .storage
-      .from(file.bucket_id)
-      .createSignedUrl(file.path, SIGNED_URL_EXPIRATION);
+    return res.status(200).json({
+      url: data.signedUrl,
+      expiresIn
+    });
 
-    if (error) throw error;
-
-    res.status(200).json({ url: data.signedUrl, expiresIn: SIGNED_URL_EXPIRATION });
   } catch (err) {
     logger.error('getUserFileUrl error:', err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
 
+// Function to get a signed URL for a group file
 export async function getGroupFileUrl(req, res) {
   logger.debug("getGroupFileUrl called");
 
@@ -217,9 +292,9 @@ export async function getGroupFileUrl(req, res) {
     }
 
     const { data, error } = await supabase
-        .storage
-        .from(file.bucket_id)
-        .createSignedUrl(file.path, SIGNED_URL_EXPIRATION);
+      .storage
+      .from(file.bucket_id)
+      .createSignedUrl(file.path, SIGNED_URL_EXPIRATION);
 
     if (error) throw error;
 
@@ -316,3 +391,5 @@ export async function deleteGroupFile(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+
