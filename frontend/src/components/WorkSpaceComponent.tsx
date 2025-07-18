@@ -34,7 +34,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { FileData } from "@/interface/FileType"
-import { SAMPLE_DATA_TABLE } from "@/assets/sample-workspace"
+// import { SAMPLE_DATA_TABLE } from "@/assets/sample-workspace"
+import { useWorkspace } from "@/contexts/WorkSpaceContext"
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 // Helper function to get file icon based on type
 // Todo: adjust the rule for Image
@@ -55,17 +58,30 @@ const formatFileSize = (bytes: number): string => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+
+
 // This is the component for the workspace
 export default function WorkSpaceComponent() {
+
+    // Get methods from workspace context
+    const { files, uploadFiles, refreshFiles, isLoading } = useWorkspace();
+
+    // File state
     const [data, setData] = useState<FileData[]>([])
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [isUploading, setIsUploading] = useState(false)
 
+
+
+    console.log("Files in WorkSpaceComponent:", files);
+
+    // Set the data state with files from context
     useEffect(() => {
-        setData(SAMPLE_DATA_TABLE)
-    }, [])
+        // Set timeout to simulate loading
+        setData(files);
+    },);
 
     // State for table
     const [sorting, setSorting] = React.useState<SortingState>([])
@@ -100,9 +116,9 @@ export default function WorkSpaceComponent() {
 
     // Handle file selection
     const handleFileSelect = (files: FileList | null) => {
-        if (files) {
-            const newFiles = Array.from(files);
-            setSelectedFiles(prev => [...prev, ...newFiles]);
+        if (files && files.length > 0) {
+            // Replace existing file with new one
+            setSelectedFile(files[0]);
         }
     };
 
@@ -135,49 +151,36 @@ export default function WorkSpaceComponent() {
     }, []);
 
     // Remove file from selection
-    const removeFile = (index: number) => {
-        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    const removeFile = () => {
+        setSelectedFile(null);
     };
 
-    // Method to Handle file upload
+    // Method to handle file upload
     const handleUpload = async () => {
-        if (selectedFiles.length === 0) return;
+        if (!selectedFile) return;
 
         setIsUploading(true);
 
-        // Simulate upload process
-        // In real app, you would upload to your server/storage here
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Send the file to the uploadFiles method from workspace context
+        const success = await uploadFiles([selectedFile]);
 
-        // Create new file entries for the table
-        const newFiles: FileData[] = selectedFiles.map((file, index) => ({
-            file_id: `f${Date.now()}_${index}`, // this auto-generates a unique file ID
-            user_id: "current_user",
-            display_name: "Current User",
-            position: "Developer",
-            company: "Your Company",
-            file_name: file.name,
-            file_type: file.type,
-            file_path: `/user_id/${file.name}`, // refer path format upload_avatar method in backend
-            file_size: file.size,
-            uploaded_at: new Date().toISOString(),
-        }));
-
-        // Add to table data
-        setData(prev => [...newFiles, ...prev]);
-
-        // Reset states
-        setSelectedFiles([]);
+        // Reset states after upload
         setIsUploading(false);
         setIsUploadDialogOpen(false);
+        setSelectedFile(null);
 
-        // Check console for uploaded files
-        console.log("Files uploaded:", newFiles);
+        // If upload was successful, refresh the files list
+        if (success) {
+            setSelectedFile(null);
+            // Refresh the files list
+            await refreshFiles();
 
-        // Todo: Send the POST request to upload files to the server
 
-
+        } else {
+            console.error("File upload failed");
+        }
     };
+
 
     return (
         <div className="w-full p-6">
@@ -189,9 +192,9 @@ export default function WorkSpaceComponent() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" />
                     <Input
                         placeholder="Search File"
-                        value={(table.getColumn("file_name")?.getFilterValue() as string) ?? ""}
+                        value={(table.getColumn("filename")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("file_name")?.setFilterValue(event.target.value)
+                            table.getColumn("filename")?.setFilterValue(event.target.value)
                         }
                         className="pl-8"
                     />
@@ -229,7 +232,18 @@ export default function WorkSpaceComponent() {
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {isLoading ? (
+                            // Render skeleton rows
+                            [...Array(6)].map((_, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className="py-4"><Skeleton className="h-6 w-6 rounded-md" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-4 w-[120px]" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-4 w-[80px]" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-4 w-[100px]" /></TableCell>
+                                    <TableCell className="py-4"><Skeleton className="h-8 w-[60px] rounded-md" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
@@ -238,21 +252,15 @@ export default function WorkSpaceComponent() {
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id} className="py-4">
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell
-                                    colSpan={WorkspaceColumns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
+                                <TableCell colSpan={WorkspaceColumns.length} className="h-24 text-center">
+                                    No files found
                                 </TableCell>
                             </TableRow>
                         )}
@@ -291,9 +299,9 @@ export default function WorkSpaceComponent() {
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>Upload Files</DialogTitle>
+                        <DialogTitle>Upload File</DialogTitle>
                         <DialogDescription>
-                            Drag and drop your files here or click to browse
+                            Drag and drop your file here or click to browse
                         </DialogDescription>
                     </DialogHeader>
 
@@ -311,12 +319,11 @@ export default function WorkSpaceComponent() {
                         >
                             <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                             <p className="text-sm text-gray-600 mb-2">
-                                Drag and drop your files here, or{' '}
+                                Drag and drop your file here, or{' '}
                                 <label className="text-blue-500 hover:text-blue-600 cursor-pointer">
                                     browse
                                     <input
                                         type="file"
-                                        multiple
                                         className="hidden"
                                         onChange={(e) => handleFileSelect(e.target.files)}
                                     />
@@ -328,34 +335,27 @@ export default function WorkSpaceComponent() {
                         </div>
 
                         {/* Selected Files List */}
-                        {selectedFiles.length > 0 && (
+                        {selectedFile && (
                             <div className="space-y-2">
-                                <h4 className="text-sm font-medium">Selected files ({selectedFiles.length})</h4>
-                                <div className="max-h-[200px] overflow-y-auto space-y-2">
-                                    {selectedFiles.map((file, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                                        >
-                                            <div className="flex items-center space-x-3">
-                                                {getFileIcon(file.name)}
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-700">
-                                                        {file.name}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {formatFileSize(file.size)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => removeFile(index)}
-                                                className="text-gray-400 hover:text-red-500"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
+                                <h4 className="text-sm font-medium">Selected file</h4>
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div className="flex items-center space-x-3">
+                                        {getFileIcon(selectedFile.name)}
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-700">
+                                                {selectedFile.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {formatFileSize(selectedFile.size)}
+                                            </p>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <button
+                                        onClick={removeFile}
+                                        className="text-gray-400 hover:text-red-500"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -365,7 +365,7 @@ export default function WorkSpaceComponent() {
                             <Button
                                 variant="outline"
                                 onClick={() => {
-                                    setSelectedFiles([]);
+                                    setSelectedFile(null);
                                     setIsUploadDialogOpen(false);
                                 }}
                             >
@@ -373,18 +373,18 @@ export default function WorkSpaceComponent() {
                             </Button>
                             <Button
                                 onClick={handleUpload}
-                                disabled={selectedFiles.length === 0 || isUploading}
+                                disabled={!selectedFile || isUploading}
                                 className="bg-blue-500 hover:bg-blue-600"
                             >
                                 {isUploading ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                                        <Upload className="h-4 w-4" />
                                         Uploading...
                                     </>
                                 ) : (
                                     <>
-                                        <Upload className="h-4 w-4 mr-2" />
-                                        Upload {selectedFiles.length > 0 && `(${selectedFiles.length})`}
+                                        <Upload className="h-4 w-4" />
+                                        Upload
                                     </>
                                 )}
                             </Button>

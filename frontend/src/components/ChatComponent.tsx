@@ -10,8 +10,11 @@ import mockChatHistoryInfo from '@/assets/sample-chats-history';
 
 
 
+
 // This is the main component to display the chat page
 export default function ChatComponent() {
+
+
 
     // Get the chatId from the URL parameters
     const params = useParams()
@@ -36,6 +39,8 @@ export default function ChatComponent() {
         // For now, we will use the mock data
         // Example: fetchMessages(chatId)
         // Todo: Fetch the chat based on userId from URL with a method in ChatContext
+
+
 
         // ! Temporary for Mockup front-end: Validate userId and fetch messages accordingly
         if (userId === '0481d6cc-d641-4597') {

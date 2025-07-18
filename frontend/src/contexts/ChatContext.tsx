@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import { ChatContextType } from '@/interface/ChatContextType';
 import { useEffect, useState } from 'react';
+import { ChatHistory } from '@/interface/ChatHistoryType';
 
 // Create a context for chat functionality
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -14,8 +15,9 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 // ChatProvider component to wrap around your application
 export function ChatProvider({ children }: { children: React.ReactNode }) {
 
+
     // State to manage chat history
-    const [chatHistory, setChatHistory] = useState<string[]>([]);
+    const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
 
 
     // Todo: useEffect to fetch chat history when the component mounts
