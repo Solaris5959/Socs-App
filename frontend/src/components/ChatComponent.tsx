@@ -7,11 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { messagesWithBessie, messagesWithAlex, messagesWithEthan } from '@/assets/sample-chats';
 import { Message } from '@/interface/Message';
 import mockChatHistoryInfo from '@/assets/sample-chats-history';
+import { ChatType } from '@/interface/Chat';
 
-
+interface ChatComponentProps{
+    chatInfo: ChatType;
+}
 
 // This is the main component to display the chat page
-export default function ChatComponent() {
+export default function ChatComponent({chatInfo}: ChatComponentProps) {
 
     // Get the chatId from the URL parameters
     const params = useParams()
