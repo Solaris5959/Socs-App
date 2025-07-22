@@ -2,15 +2,29 @@ import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import mockChatHistory from '@/assets/sample-chats-history';
-
+//import mockChatHistory from '@/assets/sample-chats-history';
+import { useChat } from '@/contexts/ChatContext';
+//import { ChatType } from '@/interface/Chat';
+//import { ChatContextType } from '@/interface/ChatContextType';
+import { ChatHistoryType } from '@/interface/Chat'; // make sure this exists
+import { useRouter } from 'next/navigation';
 // Mock chat history data
 
 
 export default function ChatHistoryComponent() {
 
     // Todo: Use chathistory from the ChatContext
+    const {chatHistory, fetchChatByUserId} = useChat();
+    const router = useRouter();
 
+    const handleChatClick = async(user_id: string) => {
+        try{
+            await fetchChatByUserId(user_id);
+            router.push(`/dashboard/chats/${user_id}`);
+        }catch(error){  
+            console.error('Failed to fetch chat by user_id:', error);
+        }
+    };
 
 
     return (
@@ -19,10 +33,12 @@ export default function ChatHistoryComponent() {
                 <h2 className="text-lg font-semibold text-gray-800">Chat History</h2>
             </div>
             <div className="space-y-2">
-                {mockChatHistory.map((chat) => (
+                {chatHistory.map((chat: ChatHistoryType) => (
                     // Link to the chat page with user_id
-                    <Link href={`/dashboard/chats/${chat.user_id}`} key={chat.user_id}>
-                        <div className="flex items-center gap-3 p-2 rounded-lg
+                    <Link href={`/dashboard/chats/${chat.user_id}`} key={chat.id}>
+                        <div
+                        key={chat.id} onClick={() => handleChatClick(chat.user_id)} 
+                        className="flex items-center gap-3 p-2 rounded-lg
                          hover:bg-gray-200 cursor-pointer transition-colors">
                             <div className="relative ">
                                 <Avatar className="w-12 h-12">

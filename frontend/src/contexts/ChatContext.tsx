@@ -4,6 +4,7 @@ import { createContext, useContext } from 'react';
 import { ChatContextType } from '@/interface/ChatContextType';
 import { useEffect, useState } from 'react';
 import { toast } from "sonner"
+import { ChatHistoryType, ChatType } from '@/interface/Chat';
 
 // Create a context for chat functionality
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -16,7 +17,7 @@ const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     // State to manage chat history
-    const [chatHistory, setChatHistory] = useState<string[]>([]);
+    const [chatHistory, setChatHistory] = useState<ChatHistoryType[]>([]);
 
     // State to manage posts, favorite posts, and user posts
     const [loading, setLoading] = useState<boolean>(false);
@@ -26,11 +27,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Fetch chat history from the server
         // Todo: Method to fetch chat history (GET: /socs/api/v1/index/chat)
-        const fetchChatHistory = async (): Promise<string[]> => {
+        const fetchChatHistory = async (): Promise<ChatHistoryType[]> => {
             // Logic to fetch chat history from the server
             setLoading(true);
             try {
-                const token = localStorage.getItem("acess_token");
+                const token = localStorage.getItem("access_token");
 
                 const response = await fetch(
                     `${API_URL}/socs/api/v1/index/chat`,
@@ -72,7 +73,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
 
     // Todo: Method to receive a message by userId (GET: /socs/api/v1/index/chat/:user_id)
-    const fetchChatByUserId = async (user_id: string): Promise<string[]> => {
+    const fetchChatByUserId = async (user_id: string): Promise<ChatType[]> => {
         // Logic to receive a message
         console.log(`Fetching chat for user_id: ${user_id}`);
 
