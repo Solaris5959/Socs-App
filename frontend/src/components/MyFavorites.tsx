@@ -5,53 +5,32 @@ import PostComponent from './PostComponent';
 import { usePostContext } from '@/contexts/PostContext';
 
 import { PostType } from '@/interface/Post';
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MyFavorites() {
 
-    // Context to manage posts
     const { fetchFavoritePosts } = usePostContext();
     const [allPosts, setPosts] = useState<PostType[]>([]);
+    const [isLoading, setIsLoading] = useState(true); // Track loading state
 
-
-
-    // Effect to fetch posts on component mount
     useEffect(() => {
-
-        // Fetch posts from the context
         const getPosts = async () => {
-
-            // ! Simulate a delay 0.5 s
+            setIsLoading(true);
             await new Promise(resolve => setTimeout(resolve, 500));
-
-
-            // Call the fetchPosts function from context
             const postData = await fetchFavoritePosts();
-
-            // Set the fetched posts to state
             setPosts(postData);
-
+            setIsLoading(false);
             console.log('Fetched posts:', postData);
-
         };
-
-        // Call the function to fetch posts
         getPosts();
-
     }, []);
-
-
-
 
     return (
         <div className="flex flex-col items-center px-4 py-8 min-h-screen dark:bg-gray-900">
-
-
-            {/* Favorite Post feed */}
             <div className="mt-8 w-full max-w-2xl space-y-4">
 
-                {/* Loading skeleton while posts are being fetched */}
-                {allPosts.length === 0 && (
+                {/* Loading state */}
+                {isLoading && (
                     <div className="space-y-4">
                         {[...Array(3)].map((_, index) => (
                             <div key={index} className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
@@ -65,9 +44,19 @@ export default function MyFavorites() {
                         ))}
                     </div>
                 )}
+
+                {/* No favorites message */}
+                {!isLoading && allPosts.length === 0 && (
+                    <div className="text-center text-gray-500 dark:text-gray-300 mt-10">
+                        You don’t have any favorite posts yet.
+                    </div>
+                )}
+
+                {/* Favorite posts */}
                 {allPosts.map(post => (
                     <PostComponent key={post.id} postInfo={post} />
                 ))}
+
             </div>
         </div>
     );

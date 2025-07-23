@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
 
 
         if (error || !data.session) {
-            logger.debug("Login Error:" + error?.message || 'No session returned');
+            logger.debug("Login Error:" + (error?.message || 'No session returned'));
             return res.status(401).json({ message: error?.message || 'Invalid credentials' });
         }
 

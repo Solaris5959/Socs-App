@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { toast } from "sonner"
 import { ChatHistoryType, ChatType } from '@/interface/Chat';
 
+
 // Create a context for chat functionality
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -15,6 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 
 // ChatProvider component to wrap around your application
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+
 
     // State to manage chat history
     const [chatHistory, setChatHistory] = useState<ChatHistoryType[]>([]);
