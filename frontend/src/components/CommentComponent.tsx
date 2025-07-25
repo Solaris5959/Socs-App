@@ -72,7 +72,7 @@ export default function CommentComponent({ comment }: CommentProps) {
                     <Avatar className="w-12 h-12 border border-gray-200">
                         <AvatarImage src={comment.profile_pic_url || undefined} alt="User Profile" />
                         <AvatarFallback className="font-semibold dark:bg-slate-700 text-slate-600 dark:text-slate-200">
-                            CN
+                            {comment?.display_name?.charAt(0) ?? 'U'}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col text-sm">

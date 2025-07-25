@@ -4,7 +4,8 @@ import { createContext, useContext } from 'react';
 import { ChatContextType } from '@/interface/ChatContextType';
 import { useEffect, useState } from 'react';
 import { toast } from "sonner"
-import { ChatHistoryType, ChatType } from '@/interface/Chat';
+import { ChatHistoryType, ParticipantType } from '@/interface/Chat';
+import { supabase } from '@/lib/supabase'
 
 
 // Create a context for chat functionality
@@ -13,22 +14,24 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 // URL for the authentication service
 const API_URL = process.env.NEXT_PUBLIC_LOCAL_API;
 
-
 // ChatProvider component to wrap around your application
 export function ChatProvider({ children }: { children: React.ReactNode }) {
 
-
     // State to manage chat history
     const [chatHistory, setChatHistory] = useState<ChatHistoryType[]>([]);
+
+    // Chat participant information
+    const [chatParticipant, setChatParticipant] = useState<ParticipantType | null>(null);
+
 
     // State to manage posts, favorite posts, and user posts
     const [loading, setLoading] = useState<boolean>(false);
 
 
-    // Todo: useEffect to fetch chat history when the component mounts
+    // useEffect to fetch chat history when the component mounts
     useEffect(() => {
         // Fetch chat history from the server
-        // Todo: Method to fetch chat history (GET: /socs/api/v1/index/chat)
+        // Method to fetch chat history (GET: /socs/api/v1/index/chat)
         const fetchChatHistory = async (): Promise<ChatHistoryType[]> => {
             // Logic to fetch chat history from the server
             setLoading(true);
@@ -56,7 +59,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
             } catch (error) {
                 console.error('Error fetching chat history: ', error);
-                toast.error('Failed to fetch chat history');
+
+
                 return []; // Ensure fallback is always an array
             } finally {
                 setLoading(false);
@@ -72,12 +76,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
 
-
-
-    // Todo: Method to receive a message by userId (GET: /socs/api/v1/index/chat/:user_id)
-    const fetchChatByUserId = async (user_id: string): Promise<ChatType[]> => {
+    // Method to receive a message by userId (GET: /socs/api/v1/index/chat/:user_id)
+    const fetchChatByUserId = async (user_id: string): Promise<ChatHistoryType[]> => {
         // Logic to receive a message
-        console.log(`Fetching chat for user_id: ${user_id}`);
+        //console.log(`Fetching chat for user_id: ${user_id}`);
 
         setLoading(true);
         try {
@@ -110,49 +112,34 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     };
 
 
-    // Todo: Method to send a message (POST: /socs/api/v1/index/chat)
-    const sendMessage = async (receiver_id: string, message: string): Promise<void> => {
-        // Logic to send a message
-        console.log(`Sending message to ${receiver_id}: ${message}`);
-        setLoading(true);
-        try {
-            const token = localStorage.getItem("access_token");
+    // Method to send a message (POST: /socs/api/v1/index/chat)
+    // In your ChatContext
+    const sendMessage = async (receiverId: string, content: string) => {
+        const myUserId = localStorage.getItem('user_id');
+        if (!myUserId) throw new Error('User not authenticated');
 
-            const headers: HeadersInit = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            };
-            const body = JSON.stringify({
-                receiver_id,
-                message
-            });
-
-            const response = await fetch(`${API_URL}/socs/api/v1/index/chat`, {
-                method: 'POST',
-                headers,
-                body
+        const { data, error } = await supabase
+            .from('messages')
+            .insert({
+                sender_id: myUserId,
+                receiver_id: receiverId,
+                content: content,
+                sent_at: new Date().toISOString(),
             })
+            .select() // Make sure to return the inserted data
+            .single();
 
-            if (!response.ok) {
-                throw new Error('Failed to add a post');
-            }
-
-            toast.success('Message sent successfully!');
-        } catch (error) {
-            console.error('Error sending a message:', error);
-            toast.error('Failed to send a message.');
-        } finally {
-            setLoading(false);
-        }
-
+        if (error) throw error;
+        return data;
     };
-
 
 
     // State variables to manage user and session
     const value = {
         loading,
         chatHistory,
+        chatParticipant,
+        setChatParticipant,
         fetchChatByUserId,
         sendMessage,
     };
