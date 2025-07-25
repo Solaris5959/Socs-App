@@ -8,5 +8,11 @@ export interface Message {
     name?: string;
 }
 
-
+export interface FetchMessage {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    sent_at: string;
+}
 

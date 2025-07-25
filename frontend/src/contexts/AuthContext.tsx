@@ -103,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Set cookies and local storage with the access token
             localStorage.setItem("access_token", data.session.access_token);
+            localStorage.setItem("user_id", data.session.user.id);
 
 
             // Show success message and redirect to dashboard page
@@ -141,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             console.log("Response:", response);
             localStorage.removeItem("access_token");
+            localStorage.removeItem("user_id");
 
             if (!response.ok) {
                 toast.error("Sign out failed. Please try again.");

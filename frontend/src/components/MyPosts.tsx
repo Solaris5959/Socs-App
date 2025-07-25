@@ -19,6 +19,9 @@ export default function MyPosts() {
     const { userProfile } = useProfile();
     const [allPosts, setPosts] = useState<PostType[]>([]);
 
+    // State to manage loading state
+    const [isLoading, setIsLoading] = useState(false);
+
     // State to manage file input and preview image
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -38,6 +41,8 @@ export default function MyPosts() {
         // Fetch posts from the context
         const getPosts = async () => {
 
+            setIsLoading(true); // Set loading state to true
+
             // ! Simulate a delay 0.5 s
             await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -46,6 +51,7 @@ export default function MyPosts() {
 
             // Set the fetched posts to state
             setPosts(postData);
+            setIsLoading(false); // Set loading state to false
 
             console.log('Fetched posts:', postData);
 
@@ -122,7 +128,7 @@ export default function MyPosts() {
                             <AvatarImage src={userProfile.profile_pic_url} alt="User Profile" />
                         )}
                         <AvatarFallback className="font-semibold dark:bg-slate-700 text-slate-600 dark:text-slate-200">
-                            CN
+                            {userProfile?.display_name?.charAt(0) ?? 'U'}
                         </AvatarFallback>
                     </Avatar>
 
@@ -205,7 +211,7 @@ export default function MyPosts() {
             {/* Post feed */}
             <div className="mt-8 w-full max-w-2xl space-y-4">
                 {/* Loading skeleton while posts are being fetched */}
-                {allPosts.length === 0 && (
+                {isLoading && (
                     <div className="space-y-4">
                         {[...Array(3)].map((_, index) => (
                             <div key={index} className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
@@ -219,6 +225,15 @@ export default function MyPosts() {
                         ))}
                     </div>
                 )}
+
+                {/* No favorites message */}
+                {!isLoading && allPosts.length === 0 && (
+                    <div className="text-center text-gray-500 dark:text-gray-300 mt-10">
+                        You don’t your posts yet. Start sharing your thoughts!
+                    </div>
+                )}
+
+
 
                 {allPosts.map(post => (
                     <PostComponent key={post.id} postInfo={post} />

@@ -6,7 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, MessageCircle, MoreHorizontal, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+
+import { useRouter } from 'next/navigation';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,6 +32,8 @@ import {
 import { useConnection } from '@/contexts/ConnectionContext';
 import { ConnectionProfileType } from '@/interface/ConnectionProfile';
 import { Skeleton } from "@/components/ui/skeleton"
+import { useChat } from '@/contexts/ChatContext';
+import { ParticipantType } from '@/interface/Chat';
 
 // Todo: Add notification when user have request
 // Todo: Add loading animation when fetching connections
@@ -42,9 +45,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 // Connection component to display user connections
 export default function MyConnections() {
 
-
     // Add a loading state
     const [isLoading, setIsLoading] = useState(true);
+
+    // Next.js router
+    const router = useRouter();
+
+    // Use the custom hook to access connection context
+    const { setChatParticipant } = useChat();
 
 
     // Use connection context to manage connections
@@ -60,6 +68,7 @@ export default function MyConnections() {
     const [suggestedConnections, setSuggestedConnections] = useState<ConnectionProfileType[]>([]);
     const [requestedConnections, setRequestedConnections] = useState<ConnectionProfileType[]>([]);
     const [sentRequests, setSentRequests] = useState<string[]>([]);
+
 
     // Function to reload connections
     const refreshConnections = async () => {
@@ -129,12 +138,30 @@ export default function MyConnections() {
 
     // Method to show delete icon when user clicks edit button
     const handleSelectConnection = () => {
-
         // Toggle the selected connection state
         setSelectedConnection(!selectedConnection);
-
     };
 
+    // Method to set the participant when user clicks on a connection
+    const handleSelectParticipant = (participant: ConnectionProfileType) => {
+
+        const chatParticipant: ParticipantType = {
+            user_id: participant.user_id,
+            display_name: participant.display_name,
+            profile_pic_url: participant.profile_pic_url,
+            position: participant.position,
+            company: participant.company,
+            is_online: participant.is_online, // Indicates if the user is currently online
+        };
+
+        // Set the chat participant state - chat header
+        setChatParticipant(chatParticipant);
+
+        // Close the dialog
+        setIsAddDialogOpen(false);
+        // Navigate to the chat page with the participant's user_id
+        router.push(`/dashboard/chats/${participant.user_id}`);
+    };
 
     // Method to handle sending connection request
     const handleSendRequest = async (userId: string) => {
@@ -147,7 +174,7 @@ export default function MyConnections() {
             setSentRequests((prev) => [...prev, userId]);
 
             // Simulate a successful request
-            console.log(`Sending connection request to user_id : ${userId}`);
+            //console.log(`Sending connection request to user_id : ${userId}`);
 
         } catch (error) {
             console.error('Error sending connection request:', error);
@@ -269,7 +296,7 @@ export default function MyConnections() {
                                             <Avatar className="w-12 h-12">
                                                 <AvatarImage src={person.profile_pic_url || 'empty'} alt={person.display_name} />
                                                 <AvatarFallback className="text-gray-700 bg-gray-300">
-                                                    SO
+                                                    {person.display_name?.charAt(0) ?? 'U'}
                                                 </AvatarFallback>
                                             </Avatar>
 
@@ -333,12 +360,12 @@ export default function MyConnections() {
                                             <Avatar className="w-12 h-12">
                                                 <AvatarImage src={person.profile_pic_url || 'empty'} alt={person.display_name} />
                                                 <AvatarFallback className="text-gray-700 bg-gray-300">
-                                                    SO
+                                                    {person.display_name?.charAt(0) ?? 'U'}
                                                 </AvatarFallback>
                                             </Avatar>
 
                                             <div>
-                                                <h3 className="font-semibold text-gray-900">{person.display_name}</h3>
+                                                <h3 className="font-semibold  text-gray-900">{person.display_name}</h3>
                                                 <p className="text-sm text-gray-600">{person.position}</p>
                                             </div>
                                         </div>
@@ -437,7 +464,7 @@ export default function MyConnections() {
                                             alt={connection.display_name}
                                         />
                                         <AvatarFallback className="text-gray-700 bg-gray-300">
-                                            SO
+                                            {connection.display_name?.charAt(0) ?? 'U'}
                                         </AvatarFallback>
                                     </Avatar>
                                     {/* Online Status */}
@@ -452,7 +479,7 @@ export default function MyConnections() {
                                     {/* Display company and position if available */}
                                     {connection.position && connection.position !== 'N/A' &&
                                         connection.company && connection.company !== 'N/A' && (
-                                            <p className="text-slate-500 dark:text-slate-400">
+                                            <p className=" text-xs text-slate-500 dark:text-slate-400">
                                                 {connection.position} at {connection.company}
                                             </p>
                                         )}
@@ -471,11 +498,14 @@ export default function MyConnections() {
                                 {/* Action Buttons */}
                                 <div className="flex gap-2">
                                     {/* Navigate to chatroom by userID */}
-                                    <Link href={`/dashboard/chats/${connection.user_id}`}>
-                                        <Button variant="ghost" size="sm" className="p-2 cursor-pointer hover:bg-gray-200">
-                                            <MessageCircle className="w-10 h-10 text-gray-700" />
-                                        </Button>
-                                    </Link>
+
+                                    <Button
+                                        variant="ghost" size="sm"
+                                        className="p-2 cursor-pointer hover:bg-gray-200"
+                                        onClick={() => handleSelectParticipant(connection)}>
+                                        <MessageCircle className="w-10 h-10 text-gray-700" />
+                                    </Button>
+
                                     {selectedConnection && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>

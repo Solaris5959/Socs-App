@@ -1,5 +1,5 @@
 //Chat.tsx
-export interface ChatType{
+export interface ChatType {
     id: string,
     text: string,
     sender: string,
@@ -8,15 +8,24 @@ export interface ChatType{
     name: string,
 }
 
-export interface ChatHistoryType{
+export interface ChatHistoryType {
     id: string;
-    name: string;
-    user_id: string;
-    poistion: string;
+    user_id: string;  // This is the user id for the chat participant
+    display_name: string;
+    profile_pic_url: string;
+    position: string;
     company: string;
-    lastMessage: string;
-    avatar_URL: string;
-    time: string;
-    is_online: boolean;
-    avatar: string;
+    last_content: string;
+    sent_at: string;
+    is_online: boolean; // Indicates if the user is currently online
 }
+
+export interface ParticipantType {
+    user_id: string;
+    display_name: string;
+    profile_pic_url: string | null; // Profile picture URL can be null if not set
+    position: string;
+    company: string;
+    is_online: boolean; // Indicates if the user is currently online
+}
+
