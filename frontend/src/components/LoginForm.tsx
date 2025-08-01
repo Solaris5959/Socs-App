@@ -103,7 +103,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   name="email"
-                  type="email"
+                  type="username"
                   placeholder="Username"
                   disabled={isLoading}
                   className={cn(

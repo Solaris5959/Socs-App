@@ -117,8 +117,6 @@ export default function ChatComponent() {
         // Fetch once on mount
         fetchMessages();
 
-
-
         // Cleanup
         return () => {
             supabase.removeChannel(channel);

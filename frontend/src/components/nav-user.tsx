@@ -4,7 +4,7 @@ import {
   Rss,
   CircleUserRound,
   MessageCircleMore,
-  Bell,
+  //Bell,
   ChevronsUpDown,
   LogOut,
 } from "lucide-react"
@@ -82,6 +82,7 @@ export function NavUser({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              data-testid="user-menu"
             >
               <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -142,13 +143,13 @@ export function NavUser({
               </a>
 
               {/* Notifications Page whrere user get reuqest*/}
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <Bell />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <button onClick={handleSignOut} className="w-full text-left">
+            <button onClick={handleSignOut} className="w-full text-left" data-testid="logout-button">
               <DropdownMenuItem className="cursor-pointer" >
                 <LogOut />
                 Log out
