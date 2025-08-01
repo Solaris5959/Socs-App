@@ -34,6 +34,11 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      - name: Run E2E tests with Cypress
-        run: npx cypress run
-        working-directory: ./frontend
+      - name: Run E2E Tests with Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./frontend
+          start: npm run dev # starts Next.js server
+          wait-on: http://localhost:3000
+          wait-on-timeout: 60 # seconds
+          browser: chrome # optional
