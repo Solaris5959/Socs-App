@@ -1,3 +1,5 @@
+# Todo: Fix cypress tests
+
 name: Frontend CI
 
 on:
@@ -34,11 +36,18 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      - name: Run E2E Tests with Cypress
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: ./frontend
-          start: npm run dev # starts Next.js server
-          wait-on: http://localhost:3000
-          wait-on-timeout: 60 # seconds
-          browser: chrome # optional
+      # Install start-server-and-test
+      - name: Install start-server-and-test
+        run: npm install --save-dev start-server-and-test
+        working-directory: ./frontend
+
+      # Run E2E tests with both servers
+      - name: Run Cypress E2E
+        run: |
+          npx start-server-and-test \
+            "npm --prefix ../backend run start" http://localhost:5000 \
+            "npm run dev" http://localhost:8080 \
+            "cypress run"
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:8080"
