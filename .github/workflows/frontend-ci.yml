@@ -8,9 +8,9 @@ on:
   pull_request:
     branches: [main, dev]
 
-jobs:
+jjobs:
   ci:
-    name: Lint, Test, and Type Check
+    name: Lint, Test, and Cypress E2E
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,13 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      # Install backend dependencies
+      - name: Install Backend
+        run: npm ci
+        working-directory: ./backend
+
+      # Install frontend dependencies
+      - name: Install Frontend
         run: npm ci
         working-directory: ./frontend
 
@@ -36,19 +42,19 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      # # Cypress Action with multiple servers
-      # - name: Run Cypress E2E
-      #   uses: cypress-io/github-action@v6
-      #   with:
-      #     # Build frontend before starting
-      #     build: npm run build
-      #     # Start backend first, then frontend
-      #     start: |
-      #       npm --prefix ../backend run start &
-      #       npm start
-      #     wait-on: |
-      #       http://localhost:8080
-      #       http://localhost:3000
-      #   working-directory: ./frontend
-      #   env:
-      #     NEXT_PUBLIC_API_URL: "http://localhost:8080"
+      # Cypress Action with multiple servers
+      - name: Run Cypress E2E
+        uses: cypress-io/github-action@v6
+        with:
+          # Build frontend before starting
+          build: npm run build
+          # Start backend first, then frontend
+          start: |
+            npm --prefix ../backend run start &
+            npm start
+          wait-on: |
+            http://localhost:8080
+            http://localhost:3000
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:8080"
