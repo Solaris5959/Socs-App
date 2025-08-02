@@ -36,24 +36,19 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      # Start the backend server in the background
-      - name: Start Backend for E2E tests
-        run: |
-          HOST=0.0.0.0 PORT=8080 npm start &
-        working-directory: ./backend
-
-      #
-      - name: Start Frontend for E2E tests
-        run: |
-          HOST=0.0.0.0 PORT=3000 npm run dev &
+      # Cypress Action with multiple servers
+      - name: Run Cypress E2E
+        uses: cypress-io/github-action@v6
+        with:
+          # Build frontend before starting
+          build: npm run build
+          # Start backend first, then frontend
+          start: |
+            npm --prefix ../backend run start &
+            npm start
+          wait-on: |
+            http://localhost:8080
+            http://localhost:3000
         working-directory: ./frontend
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
-
-      - name: Wait for backend and frontend
-        run: npx wait-on --timeout 90000 http://localhost:8080 http://localhost:3000
-
-      # Run Cypress E2E tests headless
-      - name: Run Cypress E2E
-        run: npx cypress run
-        working-directory: ./frontend
