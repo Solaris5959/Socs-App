@@ -1,5 +1,3 @@
-# Todo: Fix cypress tests
-
 name: Frontend CI
 
 on:
@@ -8,7 +6,7 @@ on:
   pull_request:
     branches: [main, dev]
 
-jjobs:
+jobs:
   ci:
     name: Lint, Test, and Cypress E2E
     runs-on: ubuntu-latest
