@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    name: Lint, Test, and Type Check
+    name: Lint, Test, and Type Check, Cypress
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,20 @@ jobs:
       - name: Run Unit tests with Jest
         run: npm test
         working-directory: ./frontend
+
+      # Cypress Action with multiple servers
+      - name: Run Cypress E2E
+        uses: cypress-io/github-action@v6
+        with:
+          # Build frontend before starting
+          build: npm run build
+          # Start backend first, then frontend
+          start: |
+            npm --prefix ../backend run start &
+            npm start
+          wait-on: |
+            http://localhost:8080
+            http://localhost:3000
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:8080"
