@@ -17,8 +17,11 @@ describe("SOCS Post Workflow", () => {
       "Hello SOCS! This is my first automated post."
     );
 
-    // Step 4: Click the submit button
-    cy.get('button[type="submit"]').contains("Post").click();
+    // Step 4: do not need to click submit button, just type
+    // Cypress automatically submits the form when you type in a textarea
+    // If you want to explicitly click the submit button, uncomment the next line
+    // cy.get('button[type="submit"]').contains("Post").click();
+    // cy.get('button[type="submit"]').contains("Post").click();
 
     // Step 5: Verify the post appears in the feed
     cy.contains("Hello SOCS! This is my first automated post.").should(
