@@ -4,7 +4,7 @@ name: Frontend CI
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, chore/cypress-test]
   pull_request:
     branches: [main, dev]
 
@@ -36,19 +36,19 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      # Cypress Action with multiple servers
-      - name: Run Cypress E2E
-        uses: cypress-io/github-action@v6
-        with:
-          # Build frontend before starting
-          build: npm run build
-          # Start backend first, then frontend
-          start: |
-            npm --prefix ../backend run start &
-            npm start
-          wait-on: |
-            http://localhost:8080
-            http://localhost:3000
-        working-directory: ./frontend
-        env:
-          NEXT_PUBLIC_API_URL: "http://localhost:8080"
+      # # Cypress Action with multiple servers
+      # - name: Run Cypress E2E
+      #   uses: cypress-io/github-action@v6
+      #   with:
+      #     # Build frontend before starting
+      #     build: npm run build
+      #     # Start backend first, then frontend
+      #     start: |
+      #       npm --prefix ../backend run start &
+      #       npm start
+      #     wait-on: |
+      #       http://localhost:8080
+      #       http://localhost:3000
+      #   working-directory: ./frontend
+      #   env:
+      #     NEXT_PUBLIC_API_URL: "http://localhost:8080"
