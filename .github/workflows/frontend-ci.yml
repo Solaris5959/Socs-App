@@ -37,20 +37,17 @@ jobs:
         working-directory: ./frontend
 
       # Start the backend server in the background
-      - name: Start Backend
+      - name: Start Backend for E2E tests
         run: |
           npm run start &
         working-directory: ./backend
 
-      - name: Start Frontend
+      - name: Start Frontend for E2E tests
         run: |
           npm run dev &
         working-directory: ./frontend
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
-
-      - name: Wait for backend and frontend
-        run: npx wait-on http://localhost:8080 http://localhost:3000
 
       # Run Cypress E2E tests headless
       - name: Run Cypress E2E
