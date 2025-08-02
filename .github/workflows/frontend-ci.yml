@@ -8,8 +8,8 @@ on:
 
 jobs:
   ci:
-    name: Lint, Test, and Type Check, Cypress
     runs-on: ubuntu-latest
+    name: Lint, Test, and Cypress
 
     steps:
       - name: Checkout repository
@@ -22,31 +22,35 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      # Install all dependencies
+      - name: Install Backend
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Install Frontend
         run: npm ci
         working-directory: ./frontend
 
-      - name: Run ESLint (Next.js)
+      - name: Run ESLint
         run: npm run lint
         working-directory: ./frontend
 
-      - name: Run Unit tests with Jest
+      - name: Run Unit Tests
         run: npm test
         working-directory: ./frontend
 
-      # Cypress Action with multiple servers
+      # Run Cypress with both servers
       - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
         with:
-          # Build frontend before starting
+          working-directory: frontend
           build: npm run build
-          # Start backend first, then frontend
           start: |
-            npm --prefix ../backend run start &
+            npm --prefix backend start &
             npm start
           wait-on: |
             http://localhost:8080
             http://localhost:3000
-        working-directory: ./frontend
+          wait-on-timeout: 120
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
