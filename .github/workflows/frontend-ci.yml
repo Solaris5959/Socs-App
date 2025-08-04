@@ -22,7 +22,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      # Install all dependencies
+      # Install backend and frontend dependencies
       - name: Install Backend
         run: npm ci
         working-directory: ./backend
@@ -39,7 +39,26 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
+      # Start Backend Server
+      - name: Start Backend Server
+        run: |
+          cd backend # Adjust path if needed
+          npm start & # Run in background
+        env:
+          PORT: 8080
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      # Start Frontend Server
+      - name: Start Frontend Server
+        run: |
+          cd frontend # Adjust path if needed
+          npm start & # Run in background
+
       # Run Cypress with both servers
-      - name: Run Cypress E2E
+      - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
-        working-directory: ./frontend
+        with:
+          start: npm start # Cypress will automatically start your app if needed based on baseUrl
+          wait-on: "http://localhost:3000" # Wait for frontend to be available
+          build: npm run build # If your frontend require
