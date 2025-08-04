@@ -35,31 +35,12 @@ jobs:
         run: npm run lint
         working-directory: ./frontend
 
-      - name: Build Frontend
-        run: npm run build
+      - name: Run Unit Tests
+        run: npm test
         working-directory: ./frontend
-
-      - name: Start Backend
-        run: npm start & npx wait-on http://localhost:8080
-        working-directory: ./backend
-        env:
-          PORT: 8080
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
-      - name: Start Frontend in Background
-        run: |
-          npm start &
-          npx wait-on http://localhost:3000
-        working-directory: ./frontend
-        env:
-          NEXT_PUBLIC_LOCAL_API: http://localhost:8080
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_KEY }}
 
       - name: Run Cypress Tests
-        run: npx cypress run --browser chrome
+        run: npx cypress run
         working-directory: ./frontend
         env:
           CYPRESS_baseUrl: http://localhost:3000
