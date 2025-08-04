@@ -46,6 +46,8 @@ jobs:
           working-directory: frontend
           build: npm run build
           start: |
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }} \
             npm --prefix ../backend start &
             npm start
           wait-on: |

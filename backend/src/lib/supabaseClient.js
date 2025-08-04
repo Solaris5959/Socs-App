@@ -6,7 +6,7 @@ dotenv.config();
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY// Do NOT expose this in frontend
+    process.env.SUPABASE_KEY
 );
 
 export default supabase;
