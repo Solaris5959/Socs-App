@@ -46,18 +46,12 @@ jobs:
           working-directory: frontend
           build: npm run build
           start: |
-            # Export secrets for backend
-            export SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            export SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
-
-            # Start backend in background
             npm --prefix ../backend start &
-
-            # Start frontend
             npm start
-          wait-on: http://localhost:8080,http://localhost:3000
-          wait-on-timeout: 150
-        env:
+          wait-on: |
+            http://localhost:8080,http://localhost:3000
+          wait-on-timeout: 120
+        env: # environment variables for Cypress
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
