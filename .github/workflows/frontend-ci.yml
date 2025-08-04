@@ -43,13 +43,14 @@ jobs:
       - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
         with:
+          working-directory: frontend
           build: npm run build
           start: |
-            npm --prefix ../backend run start &
+            npm --prefix ../backend start &
             npm start
-          wait-on: http://localhost:8080,http://localhost:3000
-          wait-on-timeout: 150
-        working-directory: ./frontend
+          wait-on: |
+            http://localhost:8080,http://localhost:3000
+          wait-on-timeout: 120
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
