@@ -59,5 +59,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_KEY }}
 
       - name: Run Cypress Tests
-        run: npx cypress run
+        run: npx cypress run --browser chrome
         working-directory: ./frontend
+        env:
+          CYPRESS_baseUrl: http://localhost:3000
