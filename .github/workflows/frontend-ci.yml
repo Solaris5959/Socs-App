@@ -39,9 +39,12 @@ jobs:
         run: npm run build
         working-directory: ./frontend
 
+      - name: Start Frontend in Background
+        run: |
+          npm start &
+          npx wait-on http://localhost:3000
+        working-directory: ./frontend
+
       - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6
-        with:
-          start: npx serve -s build
-          wait-on: "http://localhost:3000"
-          working-directory: ./frontend
+        run: npx cypress run
+        working-directory: ./frontend
