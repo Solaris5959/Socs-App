@@ -42,15 +42,4 @@ jobs:
       # Run Cypress with both servers
       - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
-        with:
-          working-directory: frontend
-          build: npm run build
-          start: |
-            SUPABASE_URL=${{ secrets.SUPABASE_URL }} SUPABASE_KEY=${{ secrets.SUPABASE_KEY }} npm --prefix ../backend start &
-            npm start
-          wait-on: |
-            http://localhost:8080
-            http://localhost:3000
-          wait-on-timeout: 120
-        env:
-          NEXT_PUBLIC_API_URL: "http://localhost:8080"
+        working-directory: ./frontend
