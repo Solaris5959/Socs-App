@@ -22,7 +22,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      # Install backend and frontend dependencies
+      # Install backend and frontend
       - name: Install Backend
         run: npm ci
         working-directory: ./backend
@@ -39,30 +39,25 @@ jobs:
         run: npm test
         working-directory: ./frontend
 
-      # Start Backend Server
-      - name: Start Backend Server
-        run: |
-          cd backend # Adjust path if needed
-          npm start & # Run in background
-        env:
-          PORT: 8080
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY}}
-
-      # Start Frontend Server
-      - name: Start Frontend Server
-        run: |
-          cd frontend # Adjust path if needed
-          npm start & # Run in background
+      # Build frontend for production
+      - name: Build Frontend
+        run: npm run build
+        working-directory: ./frontend
 
       # Run Cypress with both servers
-      - name: Run Cypress Tests
+      - name: Run Cypress E2E
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
-          start: npm start
+          start: |
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }} SUPABASE_KEY=${{ secrets.SUPABASE_KEY }} npm --prefix ../backend start &
+            npm start
           wait-on: |
             http://localhost:8080
             http://localhost:3000
           wait-on-timeout: 120
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:8080"
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
