@@ -2,7 +2,7 @@ name: Frontend CI
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, chore/cypress-test]
   pull_request:
     branches: [main, dev]
 
@@ -49,8 +49,7 @@ jobs:
             npm --prefix backend start &
             npm start
           wait-on: |
-            http://localhost:8080
-            http://localhost:3000
+            http://localhost:8080,http://localhost:3000
           wait-on-timeout: 120
         env:
           NEXT_PUBLIC_API_URL: "http://localhost:8080"
