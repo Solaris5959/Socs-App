@@ -60,6 +60,9 @@ jobs:
       - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
-          start: npm start # Cypress will automatically start your app if needed based on baseUrl
-          wait-on: "http://localhost:3000" # Wait for frontend to be available
-          build: npm run build # If your frontend require
+          working-directory: frontend
+          start: npm start
+          wait-on: |
+            http://localhost:8080
+            http://localhost:3000
+          wait-on-timeout: 120
