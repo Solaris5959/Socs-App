@@ -42,10 +42,6 @@ jobs:
       - name: Build Frontend
         run: npm run build
         working-directory: ./frontend
-
-      - name: Build Frontend
-        run: npm run build
-        working-directory: ./frontend
         env:
           NEXT_PUBLIC_LOCAL_API: http://localhost:8080
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
