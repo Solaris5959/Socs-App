@@ -12,9 +12,7 @@
  * - DELETE /deleteGroupFile
  */
 
-const request = require('supertest');
-
-// Create mocks
+// Create mocks for all external dependencies
 const mockLogger = {
   debug: jest.fn(),
   error: jest.fn(),
@@ -22,31 +20,35 @@ const mockLogger = {
   warn: jest.fn()
 };
 
+// Mock Supabase client - handles regular database operations and storage
 const mockSupabase = {
   storage: {
-    from: jest.fn()
+    from: jest.fn() // Mock storage bucket access
   },
-  from: jest.fn(),
-  rpc: jest.fn()
+  from: jest.fn(), // Mock database table access
+  rpc: jest.fn()   // Mock remote procedure calls
 };
 
+// Mock Supabase admin client - handles admin-level operations
 const mockSupabaseAdmin = {
   storage: {
-    from: jest.fn()
+    from: jest.fn() // Mock admin storage access
   },
-  rpc: jest.fn()
+  rpc: jest.fn() // Mock admin RPC calls
 };
 
+// Mock UUID generator for unique file IDs
 const mockUuid = {
   v4: jest.fn()
 };
 
+// Replace real modules with our mocks when tests run
 jest.mock('../src/logger.js', () => mockLogger);
 jest.mock('../src/lib/supabaseClient.js', () => mockSupabase);
 jest.mock('../src/lib/supabaseAdmin.js', () => mockSupabaseAdmin);
 jest.mock('uuid', () => mockUuid);
 
-// Mock the file management functions
+// Import the actual functions we want to test
 const {
   uploadUserFile,
   uploadGroupFile,
@@ -62,21 +64,22 @@ describe('File Management Routes Test Suite', () => {
   let req, res;
 
   beforeEach(() => {
+    // Clear all mock function calls and return values before each test
     jest.clearAllMocks();
     
-    // Mock UUID
+    // Set up UUID to return a predictable value for testing
     mockUuid.v4.mockReturnValue('mock-uuid-123');
 
-    // Setup request and response mocks
+    // Create mock request and response objects that mimic Express.js
     req = {
-      user: { id: 'user123' },
-      file: {
+      user: { id: 'user123' }, // Authenticated user
+      file: { // Single file upload (req.file)
         originalname: 'test.pdf',
         mimetype: 'application/pdf',
         size: 1024,
         buffer: Buffer.from('test file content')
       },
-      files: {
+      files: { // Multiple file upload (req.files)
         file: {
           originalname: 'test.pdf',
           mimetype: 'application/pdf',
@@ -84,25 +87,27 @@ describe('File Management Routes Test Suite', () => {
           buffer: Buffer.from('test file content')
         }
       },
-      params: {
+      params: { // URL parameters
         fileId: 'file123',
         groupId: 'group123'
       }
     };
 
+    // Mock Express response object with chainable methods
     res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      status: jest.fn().mockReturnThis(), // Returns 'this' for chaining
+      json: jest.fn() // Sends JSON response
     };
 
-    // Default storage mocks
+    // Set up default successful storage upload mock
     mockSupabaseAdmin.storage.from.mockReturnValue({
       upload: jest.fn().mockResolvedValue({
-        data: { path: 'user123/mock-uuid-123' },
+        data: { path: 'user123/mock-uuid-123' }, // Successful upload path
         error: null
       })
     });
 
+    // Set up default Supabase storage operations
     mockSupabase.storage.from.mockReturnValue({
       getPublicUrl: jest.fn().mockReturnValue({
         data: { publicUrl: 'https://example.com/file.pdf' }
@@ -119,6 +124,7 @@ describe('File Management Routes Test Suite', () => {
   // ====== UPLOAD USER FILE TESTS ======
   describe('uploadUserFile', () => {
     it('should upload user file successfully', async () => {
+      // Mock successful database metadata creation
       const mockMetadata = {
         file_id: 'file123',
         filename: 'test.pdf',
@@ -131,32 +137,39 @@ describe('File Management Routes Test Suite', () => {
         error: null
       });
 
+      // Execute the function
       await uploadUserFile(req, res);
 
+      // Verify successful response
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(mockMetadata);
       expect(mockLogger.debug).toHaveBeenCalledWith("uploadUserFile called");
     });
 
     it('should return 400 if user not authenticated', async () => {
+      // Remove authentication from request
       req.user = null;
 
       await uploadUserFile(req, res);
 
+      // Should reject with 400 status
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Missing authentication or file' });
     });
 
     it('should return 400 if file is missing', async () => {
+      // Remove file from request
       req.file = null;
 
       await uploadUserFile(req, res);
 
+      // Should reject with 400 status
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ error: 'Missing authentication or file' });
     });
 
     it('should handle upload errors', async () => {
+      // Mock storage upload failure
       mockSupabaseAdmin.storage.from.mockReturnValue({
         upload: jest.fn().mockResolvedValue({
           data: null,
@@ -166,11 +179,13 @@ describe('File Management Routes Test Suite', () => {
 
       await uploadUserFile(req, res);
 
+      // Should handle the error properly
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: "Cannot read properties of null (reading 'path')" });
     });
 
     it('should handle RPC errors', async () => {
+      // Mock database RPC failure
       mockSupabaseAdmin.rpc.mockResolvedValue({
         data: null,
         error: { message: 'Database error' }
@@ -178,17 +193,20 @@ describe('File Management Routes Test Suite', () => {
 
       await uploadUserFile(req, res);
 
+      // Should handle database errors
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 
     it('should handle unexpected errors', async () => {
+      // Mock unexpected network/system error
       mockSupabaseAdmin.storage.from.mockImplementation(() => {
         throw new Error('Network error');
       });
 
       await uploadUserFile(req, res);
 
+      // Should catch and handle unexpected errors
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'Network error' });
     });
@@ -265,6 +283,7 @@ describe('File Management Routes Test Suite', () => {
   // ====== LIST USER FILE METADATA TESTS ======
   describe('listUserFileMetadata', () => {
     it('should list user files successfully', async () => {
+      // Mock database returning files and user data
       const mockFiles = [
         {
           id: 'file1',
@@ -282,6 +301,7 @@ describe('File Management Routes Test Suite', () => {
         }
       ];
 
+      // First call returns files, second call returns user details
       mockSupabase.from
         .mockReturnValueOnce({
           select: jest.fn().mockResolvedValue({
@@ -300,6 +320,7 @@ describe('File Management Routes Test Suite', () => {
 
       await listUserFileMetadata(req, res);
 
+      // Should merge file and user data
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith([{
         ...mockFiles[0],
