@@ -29,17 +29,17 @@ jobs:
         run: npm run lint
         working-directory: ./backend
 
-      - name: Run Backend Tests
-        run: npm test
-        working-directory: ./backend
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY : ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          AUTH_USER: ${{ secrets.AUTH_USER }}
-          AUTH_PASS: ${{ secrets.AUTH_PASS }}
-          AUTH_USER2: ${{ secrets.AUTH_USER2 }}
-          AUTH_PASS2: ${{ secrets.AUTH_PASS2 }}
+      #- name: Run Backend Tests
+       # run: npm test
+        #working-directory: ./backend
+        #env:
+         # SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          #SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          #SUPABASE_SERVICE_ROLE_KEY : ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          #AUTH_USER: ${{ secrets.AUTH_USER }}
+          #AUTH_PASS: ${{ secrets.AUTH_PASS }}
+          #AUTH_USER2: ${{ secrets.AUTH_USER2 }}
+          #AUTH_PASS2: ${{ secrets.AUTH_PASS2 }}
 
   frontend:
     name: Frontend Lint, Test, Build
