@@ -23,9 +23,9 @@ export function ResetPasswordForm({
   const { resetPassword } = useAuth();
 
   const [errors, setErrors] = useState<{
-      password?: string
-      password2?: string
-    }>({})
+    password?: string
+    password2?: string
+  }>({})
 
   // Function to handle form submission
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -51,9 +51,9 @@ export function ResetPasswordForm({
     }
 
     // Confirm password validation
-    if (password !== password2) {
-      newErrors.password2 = "Passwords do not match"
-    }
+    // if (password !== password2) {
+    //   newErrors.password2 = "Passwords do not match"
+    // }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)

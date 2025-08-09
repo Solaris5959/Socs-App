@@ -1,0 +1,75 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  backend:
+    name: Backend Lint, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend Dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Lint Backend
+        run: npm run lint
+        working-directory: ./backend
+
+      #- name: Run Backend Tests
+       # run: npm test
+        #working-directory: ./backend
+        #env:
+         # SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          #SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          #SUPABASE_SERVICE_ROLE_KEY : ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          #AUTH_USER: ${{ secrets.AUTH_USER }}
+          #AUTH_PASS: ${{ secrets.AUTH_PASS }}
+          #AUTH_USER2: ${{ secrets.AUTH_USER2 }}
+          #AUTH_PASS2: ${{ secrets.AUTH_PASS2 }}
+
+  frontend:
+    name: Frontend Lint, Test, Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Lint Frontend
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Run Frontend Tests
+        run: npm test
+        working-directory: ./frontend
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_KEY }}

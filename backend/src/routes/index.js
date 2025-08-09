@@ -42,6 +42,8 @@ import {
   delete_follow
 } from './connections.js';
 
+import { deleteGroupFile, deleteUserFile, getGroupFileUrl, getUserFileUrl, listGroupFileMetadata, listUserFileMetadata, uploadGroupFile, uploadUserFile } from './files.js';
+
 // Note: Import everything from profile.js as 
 
 //define all routes here ('/route' , method) all with have the req.user object
@@ -82,13 +84,18 @@ router.post('/posts/favourite', favourite_post);
 router.delete('/posts/like', unlike_post);
 router.delete('/posts/favourite', unfavourite_post);
 
-//Messaging Routes Sprint 3, body is required: req.body.content must be defined! 
-router.get('/chat', query_chat) //return all chats for user 
-router.get('/chat/:id', read_msg), //return all msgs with id
-  router.post('/chat/:id', new_msg) //send a new message to id
-router.put('/chat/:id/message/:messageID', update_msg) // where id is reciever and messageID is the exact message to be updated, time stamp also updated on success 
-router.delete('/chat/:id/message/:messageID', delete_msg) // where id is reciever and messageID is the exact message to be deleted 
 
+// ====== Messaging  Routes ======
+
+//Messaging Routes Sprint 3, body is required: req.body.content must be defined!
+router.get('/chat', query_chat) //return all chats for user RECEIVED
+router.get('/chat/:id', read_msg), //return all msgs from current user with other user
+  router.post('/chat', new_msg) //send a new message to id 
+router.put('/chat/:messageID', update_msg) // messageID is the exact message to be updated, time stamp also updated on success 
+router.delete('/chat/:messageID', delete_msg) //messageID is the exact message to be deleted 
+
+
+// ====== Connection Routes ======
 // Connections/Follows + Connection Requests
 router.get('/connections', query_connections) //GET all connections for user
 router.get('/suggest-connections', query_potential_connections) // * Added:GET potential connections for user
@@ -103,6 +110,16 @@ router.post('/connections/follow', new_follow) //POST to follow a user
 router.delete('/connections/unfollow/:id', delete_follow) //DELETE to unfollow a user
 
 
+// ====== FILE Routes ======
+// Filess
+router.post('/files/user', upload.single('file'), uploadUserFile);
+router.post('/files/group/:groupId', uploadGroupFile) // Upload a file for group
+router.get('/files/user', listUserFileMetadata) // Get all files for user
+router.get('/files/group/:groupId', listGroupFileMetadata) // Get all files for group
+router.get('/files/user/:fileId', getUserFileUrl) // Get a specific file's signed URL for user - *download file
+router.get('/files/group/:groupId/:fileId', getGroupFileUrl) // Get a specific file's signed URL for group
+router.delete('/files/user/:fileId', deleteUserFile) // Delete a file for user
+router.delete('/files/group/:groupId/:fileId', deleteGroupFile) // Delete a file for group
 
 
 

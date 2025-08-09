@@ -100,13 +100,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Image
                   src={logoImage}
                   alt="SOCS Logo"
-                  className="h-8 w-8 rounded-full"
+                  className="w-8 h-8 rounded-full"
                   width={32}
                   height={32}
                 />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">SOCS</span>
-                  <span className="truncate text-xs">Social App</span>
+                <div className="grid flex-1 text-sm leading-tight text-left">
+                  <span className="font-medium truncate">SOCS</span>
+                  <span className="text-xs truncate">Social App</span>
                 </div>
               </a>
             </SidebarMenuButton>

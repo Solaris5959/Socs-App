@@ -7,8 +7,9 @@ import { usePostContext } from '@/contexts/PostContext';
 import { useProfile } from '@/contexts/UserContext';
 import Image from 'next/image';
 import { PostType } from '@/interface/Post';
+import { Skeleton } from "@/components/ui/skeleton"
 
-// Todo: Add loading effect when user scrolls down the feed
+// FeedComponent.tsx - Main feed component for displaying posts and creating new posts
 export default function FeedComponent() {
 
     // Context to manage posts
@@ -17,6 +18,8 @@ export default function FeedComponent() {
     // Get user profile from context
     const { userProfile } = useProfile();
     const [allPosts, setPosts] = useState<PostType[]>([]);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     // State to manage file input and preview image
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -30,19 +33,20 @@ export default function FeedComponent() {
 
     // Effect to fetch posts on component mount
     useEffect(() => {
-
-        // Fetch posts from the context
+        // Fetch posts from the context 
         const getPosts = async () => {
+
+            setIsLoading(true); // Set loading state to true
+            // ! Simulate a delay 0.5 s
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             // Call the fetchPosts function from context
             const postData = await fetchPosts();
             setPosts(postData);
-            //console.log('Fetched posts:', postData);
+            setIsLoading(false); // Set loading state to false
         };
 
-        // Call the function to fetch posts
         getPosts();
-
     }, []);
 
 
@@ -103,6 +107,7 @@ export default function FeedComponent() {
     return (
         <div className="flex flex-col items-center px-4 py-8 min-h-screen dark:bg-gray-900">
             {/* New post input box */}
+
             <div className="w-full max-w-2xl bg-white border border-gray-200 dark:border-slate-700 rounded-2xl py-4 px-6 dark:bg-slate-800">
                 <div className="flex space-x-4">
                     {/* Avatar */}
@@ -110,8 +115,8 @@ export default function FeedComponent() {
                         {userProfile && (
                             <AvatarImage src={userProfile.profile_pic_url} alt="User Profile" />
                         )}
-                        <AvatarFallback className="font-semibold dark:bg-slate-700 text-slate-600 dark:text-slate-200">
-                            CN
+                        <AvatarFallback className="font-semibold  dark:bg-slate-700 text-slate-600 dark:text-slate-200">
+                            {userProfile?.display_name?.charAt(0) ?? 'U'}
                         </AvatarFallback>
                     </Avatar>
 
@@ -193,6 +198,31 @@ export default function FeedComponent() {
 
             {/* Post feed */}
             <div className="mt-8 w-full max-w-2xl space-y-4">
+                {/* Loading skeleton while posts are being fetched */}
+                {isLoading && (
+                    <div className="space-y-4">
+                        {[...Array(3)].map((_, index) => (
+                            <div key={index} className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                <div className="flex items-center space-x-3 mb-4">
+                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                    <Skeleton className="w-24 h-4" />
+                                </div>
+                                <Skeleton className="h-6 mb-2" />
+                                <Skeleton className="h-40" />
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* No favorites message */}
+                {!isLoading && allPosts.length === 0 && (
+                    <div className="text-center text-gray-500 dark:text-gray-300 mt-10">
+                        You don’t have any posts yet. Connect with others and start sharing your thoughts!
+                    </div>
+                )}
+
+
+
                 {allPosts.map(post => (
                     <PostComponent key={post.id} postInfo={post} />
                 ))}

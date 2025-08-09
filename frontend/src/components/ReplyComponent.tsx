@@ -20,7 +20,7 @@ export default function ReplyComponent({ reply }: ReplyProps) {
                     <Avatar className="w-10 h-10 border border-gray-200">
                         <AvatarImage src={reply.profile_pic_url || undefined} alt="User Profile" />
                         <AvatarFallback className="font-semibold dark:bg-slate-700 text-slate-600 dark:text-slate-200">
-                            CN
+                            {reply.display_name?.charAt(0) ?? 'U'}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col text-sm">

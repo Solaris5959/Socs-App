@@ -4,10 +4,9 @@ import {
   Rss,
   CircleUserRound,
   MessageCircleMore,
-  Bell,
+  //Bell,
   ChevronsUpDown,
   LogOut,
-  Link,
 } from "lucide-react"
 
 import {
@@ -83,14 +82,15 @@ export function NavUser({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              data-testid="user-menu"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+              <div className="grid flex-1 text-sm leading-tight text-left">
+                <span className="font-medium truncate">{user.name}</span>
+                <span className="text-xs truncate">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -104,13 +104,13 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 {/* User Profile Detail */}
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="w-8 h-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                <div className="grid flex-1 text-sm leading-tight text-left">
+                  <span className="font-medium truncate">{user.name}</span>
+                  <span className="text-xs truncate">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -135,21 +135,21 @@ export function NavUser({
               </a>
 
               {/* Chat Page*/}
-              <Link href="/dashboard/chats" >
+              <a href="/dashboard/chats" >
                 <DropdownMenuItem className="cursor-pointer" >
                   <MessageCircleMore />
                   Chats
                 </DropdownMenuItem>
-              </Link>
+              </a>
 
               {/* Notifications Page whrere user get reuqest*/}
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <Bell />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <button onClick={handleSignOut} className="w-full text-left">
+            <button onClick={handleSignOut} className="w-full text-left" data-testid="logout-button">
               <DropdownMenuItem className="cursor-pointer" >
                 <LogOut />
                 Log out

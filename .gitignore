@@ -16,6 +16,8 @@ backend/dist/
 *.env.test.local
 *.env.production.local
 env.jest
+.secrets
+
 # Logs
 *.log
 logs/
